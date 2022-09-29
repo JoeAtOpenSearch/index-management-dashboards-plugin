@@ -23,12 +23,21 @@ export interface ManagedIndexMetaData {
   info?: object;
 }
 
+export interface IndexItem {
+  index: string;
+  indexUuid: string;
+  settings?: {
+    index: {
+      number_of_shards: number;
+      number_of_replicas: number;
+    };
+  };
+}
+
 /**
  * ManagedIndex item shown in the Managed Indices table
  */
-export interface ManagedIndexItem {
-  index: string;
-  indexUuid: string;
+export interface ManagedIndexItem extends IndexItem {
   dataStream: string | null;
   policyId: string;
   policySeqNo: number;
@@ -36,10 +45,6 @@ export interface ManagedIndexItem {
   policy: Policy | null;
   enabled: boolean;
   managedIndexMetaData: ManagedIndexMetaData | null;
-}
-
-export interface IndexItem {
-  index: string;
 }
 
 /**

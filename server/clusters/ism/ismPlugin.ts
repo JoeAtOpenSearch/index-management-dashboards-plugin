@@ -496,4 +496,18 @@ export default function ismPlugin(Client: any, config: any, components: any) {
     },
     method: "POST",
   });
+
+  ism.putIndex = ca({
+    url: {
+      fmt: `/<%=index%>`,
+      req: {
+        index: {
+          type: "string",
+          required: true,
+        },
+      },
+    },
+    needBody: true,
+    method: "PUT",
+  });
 }

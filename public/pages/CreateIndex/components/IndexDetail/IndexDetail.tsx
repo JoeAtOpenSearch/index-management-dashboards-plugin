@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { EuiSpacer, EuiFormRow, EuiFieldText, EuiFieldNumber, EuiAccordion, EuiLink } from "@elastic/eui";
 import { set, get } from "lodash";
 import { ContentPanel } from "../../../../components/ContentPanel";
 import JSONEditor from "../../../../components/JSONEditor";
 import { IndexItem } from "../../../../../models/interfaces";
 
-interface ConfigurePolicyProps {
+export interface IndexDetailProps {
   value?: Partial<IndexItem>;
-  onChange?: (value: ConfigurePolicyProps["value"]) => void;
+  onChange: (value: IndexDetailProps["value"]) => void;
 }
 
-const IndexDetail = ({ value, onChange }: ConfigurePolicyProps) => {
+const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
   const onValueChange = useCallback(
     (name: string, val) => {
       let finalValue = value || {};
@@ -52,8 +52,8 @@ const IndexDetail = ({ value, onChange }: ConfigurePolicyProps) => {
           <EuiFormRow label="Index alias  - optional" helpText="Select existing aliases or specify a new alias">
             <EuiFieldText
               placeholder="Select or create aliases"
-              value={finalValue.index}
-              onChange={(e) => onValueChange("index", e.target.value)}
+              value={finalValue.aliases}
+              onChange={(e) => onValueChange("aliases", e.target.value)}
             />
           </EuiFormRow>
         </div>
@@ -106,6 +106,7 @@ const IndexDetail = ({ value, onChange }: ConfigurePolicyProps) => {
           </EuiAccordion>
         </div>
       </ContentPanel>
+      <EuiSpacer />
       <ContentPanel title="Index mapping - optional" titleSize="s">
         <div style={{ paddingLeft: "10px" }}>
           <EuiFormRow label="Number of shards" helpText="The number of primary shards in the index. Default is 1.">

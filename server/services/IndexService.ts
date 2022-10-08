@@ -24,6 +24,7 @@ import {
 } from "../../../../src/core/server";
 import { getSearchString } from "../utils/helpers";
 import { getIndexToDataStreamMapping } from "./DataStreamService";
+import { IndexItem } from "../../models/interfaces";
 
 export default class IndexService {
   osDriver: ILegacyCustomClusterClient;
@@ -195,6 +196,35 @@ export default class IndexService {
       });
     } catch (err) {
       console.error("Index Management - IndexService - editRolloverAlias", err);
+      return response.custom({
+        statusCode: 200,
+        body: {
+          ok: false,
+          error: err.message,
+        },
+      });
+    }
+  };
+
+  putIndex = async (
+    context: RequestHandlerContext,
+    request: OpenSearchDashboardsRequest,
+    response: OpenSearchDashboardsResponseFactory
+  ): Promise<IOpenSearchDashboardsResponse<ServerResponse<AcknowledgedResponse>>> => {
+    try {
+      const { index, indexUuid, ...others } = request.body as IndexItem;
+      const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
+      const params = { index, body: others };
+      const putIndexResponse = await callWithRequest("ism.putIndex", params);
+      return response.custom({
+        statusCode: 200,
+        body: {
+          ok: true,
+          response: putIndexResponse,
+        },
+      });
+    } catch (err) {
+      console.error("Index Management - IndexService - putIndex", err);
       return response.custom({
         statusCode: 200,
         body: {

@@ -11,7 +11,7 @@ interface JSONEditorProps extends Partial<EuiCodeEditorProps> {
   onChange?: (value: JSONEditorProps["value"]) => void;
 }
 
-const JSONModal: React.SFC<JSONEditorProps> = ({ value, onChange }) => {
+const JSONEditor: React.SFC<JSONEditorProps> = ({ value, onChange }) => {
   const [tempEditorValue, setTempEditorValue] = useState(value);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
@@ -50,4 +50,4 @@ const JSONModal: React.SFC<JSONEditorProps> = ({ value, onChange }) => {
   );
 };
 
-export default JSONModal;
+export default JSONEditor;

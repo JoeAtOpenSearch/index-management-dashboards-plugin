@@ -10,9 +10,12 @@ import IndexDetail from "../../components/IndexDetail";
 import { IndexItem } from "../../../../../models/interfaces";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
 import { CoreServicesContext } from "../../../../components/core_services";
+import { IndexDetailProps } from "../../components/IndexDetail/IndexDetail";
+import { IndexService } from "../../../../services/index";
 
 interface CreateIndexProps extends RouteComponentProps {
   isEdit?: boolean;
+  indexService: IndexService;
 }
 
 interface CreateIndexState {
@@ -39,7 +42,7 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
     else this.props.history.push(ROUTES.INDEX_POLICIES);
   };
 
-  onDetailChange = (value: Partial<IndexItem>): void => {
+  onDetailChange: IndexDetailProps["onChange"] = (value) => {
     this.setState({
       indexDetail: {
         ...this.state.indexDetail,
@@ -52,10 +55,15 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
     const { indexDetail } = this.state;
     this.setState({ isSubmitting: true });
     try {
-      console.log(indexDetail);
-    } catch (err) {
-      this.context.notifications.toasts.addDanger("Invalid Policy JSON");
-      console.error(err);
+      const result = await this.props.indexService.putIndex(indexDetail);
+      if (result && result.ok) {
+        this.context.notifications.toasts.addSuccess(`${indexDetail.index} has been successfully created.`);
+        this.props.history.push(ROUTES.INDICES);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      this.context.notifications.toasts.addDanger(err.message);
     }
 
     this.setState({ isSubmitting: false });
@@ -76,12 +84,12 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
         <EuiSpacer />
         <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty onClick={this.onCancel} data-test-subj="createPolicyCancelButton">
+            <EuiButtonEmpty onClick={this.onCancel} data-test-subj="createIndexCancelButton">
               Cancel
             </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill onClick={this.onSubmit} isLoading={isSubmitting} data-test-subj="createPolicyCreateButton">
+            <EuiButton fill onClick={this.onSubmit} isLoading={isSubmitting} data-test-subj="createIndexCreateButton">
               {isEdit ? "Update" : "Create"}
             </EuiButton>
           </EuiFlexItem>

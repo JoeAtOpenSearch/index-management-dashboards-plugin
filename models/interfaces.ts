@@ -32,6 +32,7 @@ export interface IndexItem {
       number_of_replicas: number;
     };
   };
+  aliases?: Record<string, {}>;
 }
 
 /**

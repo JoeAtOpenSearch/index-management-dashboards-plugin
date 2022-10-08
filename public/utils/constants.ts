@@ -84,6 +84,7 @@ export const BREADCRUMBS = Object.freeze({
   REPOSITORIES: { text: "Repositories", href: `#${ROUTES.REPOSITORIES}` },
   CREATE_REPOSITORY: { text: "Create repository", href: `#${ROUTES.CREATE_REPOSITORY}` },
   EDIT_REPOSITORY: { text: "Edit repository", href: `#${ROUTES.EDIT_REPOSITORY}` },
+  CREATE_INDEX: { text: "Create Index", href: `#${ROUTES.CREATE_INDEX}` },
 });
 
 // TODO: EUI has a SortDirection already

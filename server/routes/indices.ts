@@ -60,4 +60,17 @@ export default function (services: NodeServices, router: IRouter) {
     },
     indexService.editRolloverAlias
   );
+
+  router.put(
+    {
+      path: NODE_API.PUT_INDEX,
+      validate: {
+        body: schema.object({
+          index: schema.string(),
+          indexUuid: schema.string(),
+        }),
+      },
+    },
+    indexService.putIndex
+  );
 }

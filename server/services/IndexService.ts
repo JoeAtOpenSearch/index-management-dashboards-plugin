@@ -215,7 +215,7 @@ export default class IndexService {
       const { index, indexUuid, ...others } = request.body as IndexItem;
       const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
       const params = { index, body: others };
-      const putIndexResponse = await callWithRequest("ism.putIndex", params);
+      const putIndexResponse = await callWithRequest("indices.create", params);
       return response.custom({
         statusCode: 200,
         body: {

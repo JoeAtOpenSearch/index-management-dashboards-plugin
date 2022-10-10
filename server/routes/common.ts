@@ -13,11 +13,13 @@ export default function (services: NodeServices, router: IRouter) {
   const payload = {
     path: NODE_API.API_CALLER,
     validate: {
-      body: schema.object({
-        path: schema.string(),
-        method: schema.string(),
-        body: schema.any(),
-      }),
+      body: schema.nullable(
+        schema.object({
+          endpoint: schema.string(),
+          data: schema.nullable(schema.any()),
+        })
+      ),
+      query: schema.any(),
     },
   };
 

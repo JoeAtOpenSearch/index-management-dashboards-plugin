@@ -10,7 +10,7 @@ import IndexDetail from "../../components/IndexDetail";
 import { IndexItem } from "../../../../../models/interfaces";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
 import { CoreServicesContext } from "../../../../components/core_services";
-import { IndexDetailProps } from "../../components/IndexDetail/IndexDetail";
+import { IIndexDetailRef, IndexDetailProps } from "../../components/IndexDetail/IndexDetail";
 import { CommonService } from "../../../../services/index";
 
 interface CreateIndexProps extends RouteComponentProps {
@@ -29,8 +29,15 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
     isSubmitting: false,
     indexDetail: {
       index: "",
+      settings: {
+        index: {
+          number_of_shards: 1,
+          number_of_replicas: 1,
+        },
+      },
     },
   };
+  indexDetailRef: IIndexDetailRef | null = null;
 
   componentDidMount = async (): Promise<void> => {
     this.context.chrome.setBreadcrumbs([BREADCRUMBS.INDEX_MANAGEMENT, BREADCRUMBS.INDEX_POLICIES, BREADCRUMBS.CREATE_INDEX]);
@@ -53,12 +60,18 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
   onSubmit = async (): Promise<void> => {
     const { indexDetail } = this.state;
     const { index, ...others } = indexDetail;
+    if (!(await this.indexDetailRef?.validate())) {
+      return;
+    }
     this.setState({ isSubmitting: true });
     try {
       const result = await this.props.commonService.apiCaller({
-        path: index,
+        endpoint: "indices.create",
         method: "PUT",
-        body: others,
+        data: {
+          index,
+          body: others,
+        },
       });
       if (result && result.ok) {
         this.context.notifications.toasts.addSuccess(`${indexDetail.index} has been successfully created.`);
@@ -83,7 +96,7 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
           <h1>{isEdit ? "Edit" : "Create"} index</h1>
         </EuiTitle>
         <EuiSpacer />
-        <IndexDetail value={indexDetail} onChange={this.onDetailChange} />
+        <IndexDetail ref={(ref) => (this.indexDetailRef = ref)} value={indexDetail} onChange={this.onDetailChange} />
         <EuiSpacer />
         <EuiSpacer />
         <EuiFlexGroup alignItems="center" justifyContent="flexEnd">

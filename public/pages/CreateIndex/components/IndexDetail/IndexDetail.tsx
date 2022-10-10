@@ -3,19 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useMemo } from "react";
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import { EuiSpacer, EuiFormRow, EuiFieldText, EuiFieldNumber, EuiAccordion, EuiLink } from "@elastic/eui";
 import { set, get } from "lodash";
 import { ContentPanel } from "../../../../components/ContentPanel";
 import JSONEditor from "../../../../components/JSONEditor";
+import AliasSelect from "../../containers/AliasSelect";
 import { IndexItem } from "../../../../../models/interfaces";
+import { Ref } from "react";
 
 export interface IndexDetailProps {
   value?: Partial<IndexItem>;
   onChange: (value: IndexDetailProps["value"]) => void;
 }
 
-const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
+export interface IIndexDetailRef {
+  validate: () => Promise<Boolean>;
+}
+
+const IndexDetail = ({ value, onChange }: IndexDetailProps, ref: Ref<IIndexDetailRef>) => {
   const onValueChange = useCallback(
     (name: string, val) => {
       let finalValue = value || {};
@@ -24,6 +30,7 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
     },
     [onChange, value]
   );
+  const [errors, setErrors] = useState({} as Record<string, string>);
   const finalValue = value || {};
   const indexSettings = get(value, "settings.index");
   const restSettingValue = useMemo(() => {
@@ -38,11 +45,23 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
       };
     }, {});
   }, [indexSettings]);
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      if (!value?.index) {
+        setErrors({
+          index: "Index name can not be null.",
+        });
+        return Promise.resolve(false);
+      }
+      setErrors({});
+      return Promise.resolve(true);
+    },
+  }));
   return (
     <>
       <ContentPanel title="Define index" titleSize="s">
         <div style={{ paddingLeft: "10px" }}>
-          <EuiFormRow label="Index name" helpText="Some reestrictrion text on domain">
+          <EuiFormRow label="Index name" helpText="Some reestrictrion text on domain" isInvalid={!!errors["index"]} error={errors["index"]}>
             <EuiFieldText
               placeholder="Please enter the name for your index"
               value={finalValue.index}
@@ -50,11 +69,7 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
             />
           </EuiFormRow>
           <EuiFormRow label="Index alias  - optional" helpText="Select existing aliases or specify a new alias">
-            <EuiFieldText
-              placeholder="Select or create aliases"
-              value={finalValue.aliases}
-              onChange={(e) => onValueChange("aliases", e.target.value)}
-            />
+            <AliasSelect value={finalValue.aliases} onChange={(value) => onValueChange("aliases", value)} />
           </EuiFormRow>
         </div>
       </ContentPanel>
@@ -64,14 +79,14 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
           <EuiFormRow label="Number of shards" helpText="The number of primary shards in the index. Default is 1.">
             <EuiFieldNumber
               placeholder="The number of primary shards in the index. Default is 1."
-              value={finalValue?.settings?.index?.number_of_shards || 1}
+              value={finalValue?.settings?.index?.number_of_shards}
               onChange={(e) => onValueChange("settings.index.number_of_shards", e.target.value)}
             />
           </EuiFormRow>
           <EuiFormRow label="Number of replicas" helpText="The number of replica shards each primary shard should have.">
             <EuiFieldNumber
               placeholder="The number of replica shards each primary shard should have."
-              value={finalValue?.settings?.index?.number_of_replicas || 1}
+              value={finalValue?.settings?.index?.number_of_replicas}
               onChange={(e) => onValueChange("settings.index.number_of_replicas", e.target.value)}
             />
           </EuiFormRow>
@@ -123,4 +138,4 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps) => {
 };
 
 // @ts-ignore
-export default IndexDetail;
+export default forwardRef(IndexDetail);

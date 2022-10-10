@@ -572,7 +572,7 @@ export enum TRANSFORM_AGG_TYPE {
   date_histogram = "date_histogram",
 }
 export interface IAPICaller {
-  path: string;
-  method: string;
-  body: any;
+  endpoint: string;
+  method?: string;
+  data?: any;
 }

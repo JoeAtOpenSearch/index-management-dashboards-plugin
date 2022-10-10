@@ -32,13 +32,16 @@ export default class IndexService {
   ): Promise<IOpenSearchDashboardsResponse<ServerResponse<AcknowledgedResponse>>> => {
     try {
       const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
-      console.log("request.body", JSON.stringify(request.body));
-      const commonCaller = await callWithRequest("ism.apiCaller", request.body as IAPICaller);
+      const useQuery = !request.body;
+      const usedParam = (useQuery ? request.query : request.body) as IAPICaller;
+      const { endpoint, data } = usedParam || {};
+      const payload = useQuery ? JSON.parse(data || "{}") : data;
+      const commonCallerResponse = await callWithRequest(endpoint, payload);
       return response.custom({
         statusCode: 200,
         body: {
           ok: true,
-          response: commonCaller,
+          response: commonCallerResponse,
         },
       });
     } catch (err) {

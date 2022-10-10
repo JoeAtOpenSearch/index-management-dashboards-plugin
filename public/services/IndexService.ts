@@ -96,10 +96,4 @@ export default class IndexService {
     const response = (await this.httpClient.get(url, { query: queryObject })) as ServerResponse<GetPoliciesResponse>;
     return response;
   };
-
-  putIndex = async (body: IndexItem): Promise<ServerResponse<AcknowledgedResponse>> => {
-    const url = `${NODE_API.PUT_INDEX}`;
-    const response = (await this.httpClient.put(url, { body: JSON.stringify(body) })) as ServerResponse<AcknowledgedResponse>;
-    return response;
-  };
 }

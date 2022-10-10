@@ -496,4 +496,25 @@ export default function ismPlugin(Client: any, config: any, components: any) {
     },
     method: "POST",
   });
+
+  ism.apiCaller = ca({
+    url: {
+      fmt: `<%=path%>`,
+      req: {
+        path: {
+          type: "string",
+          required: true,
+        },
+      },
+    },
+    method: {
+      fmt: `<%=method%>`,
+      req: {
+        method: {
+          type: "string",
+          required: true,
+        },
+      },
+    },
+  });
 }

@@ -11,11 +11,11 @@ import { IndexItem } from "../../../../../models/interfaces";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { IndexDetailProps } from "../../components/IndexDetail/IndexDetail";
-import { IndexService } from "../../../../services/index";
+import { CommonService } from "../../../../services/index";
 
 interface CreateIndexProps extends RouteComponentProps {
   isEdit?: boolean;
-  indexService: IndexService;
+  commonService: CommonService;
 }
 
 interface CreateIndexState {
@@ -29,7 +29,6 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
     isSubmitting: false,
     indexDetail: {
       index: "",
-      indexUuid: "",
     },
   };
 
@@ -53,9 +52,14 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
 
   onSubmit = async (): Promise<void> => {
     const { indexDetail } = this.state;
+    const { index, ...others } = indexDetail;
     this.setState({ isSubmitting: true });
     try {
-      const result = await this.props.indexService.putIndex(indexDetail);
+      const result = await this.props.commonService.apiCaller({
+        path: index,
+        method: "PUT",
+        body: others,
+      });
       if (result && result.ok) {
         this.context.notifications.toasts.addSuccess(`${indexDetail.index} has been successfully created.`);
         this.props.history.push(ROUTES.INDICES);

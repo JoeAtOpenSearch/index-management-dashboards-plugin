@@ -25,7 +25,7 @@ export interface ManagedIndexMetaData {
 
 export interface IndexItem {
   index: string;
-  indexUuid: string;
+  indexUuid?: string;
   settings?: {
     index: {
       number_of_shards: number;
@@ -39,6 +39,7 @@ export interface IndexItem {
  * ManagedIndex item shown in the Managed Indices table
  */
 export interface ManagedIndexItem extends IndexItem {
+  indexUuid: string;
   dataStream: string | null;
   policyId: string;
   policySeqNo: number;
@@ -569,4 +570,9 @@ export enum TRANSFORM_AGG_TYPE {
   terms = "terms",
   histogram = "histogram",
   date_histogram = "date_histogram",
+}
+export interface IAPICaller {
+  path: string;
+  method: string;
+  body: any;
 }

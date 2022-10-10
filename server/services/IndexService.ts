@@ -205,33 +205,4 @@ export default class IndexService {
       });
     }
   };
-
-  putIndex = async (
-    context: RequestHandlerContext,
-    request: OpenSearchDashboardsRequest,
-    response: OpenSearchDashboardsResponseFactory
-  ): Promise<IOpenSearchDashboardsResponse<ServerResponse<AcknowledgedResponse>>> => {
-    try {
-      const { index, indexUuid, ...others } = request.body as IndexItem;
-      const { callAsCurrentUser: callWithRequest } = this.osDriver.asScoped(request);
-      const params = { index, body: others };
-      const putIndexResponse = await callWithRequest("indices.create", params);
-      return response.custom({
-        statusCode: 200,
-        body: {
-          ok: true,
-          response: putIndexResponse,
-        },
-      });
-    } catch (err) {
-      console.error("Index Management - IndexService - putIndex", err);
-      return response.custom({
-        statusCode: 200,
-        body: {
-          ok: false,
-          error: err.message,
-        },
-      });
-    }
-  };
 }

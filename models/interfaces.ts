@@ -576,3 +576,5 @@ export interface IAPICaller {
   method?: string;
   data?: any;
 }
+
+export type IAliasAction = Record<string, { index: string; alias: string }>;

@@ -15,13 +15,14 @@ import { Ref } from "react";
 export interface IndexDetailProps {
   value?: Partial<IndexItem>;
   onChange: (value: IndexDetailProps["value"]) => void;
+  isEdit?: boolean;
 }
 
 export interface IIndexDetailRef {
   validate: () => Promise<Boolean>;
 }
 
-const IndexDetail = ({ value, onChange }: IndexDetailProps, ref: Ref<IIndexDetailRef>) => {
+const IndexDetail = ({ value, onChange, isEdit }: IndexDetailProps, ref: Ref<IIndexDetailRef>) => {
   const onValueChange = useCallback(
     (name: string, val) => {
       let finalValue = value || {};
@@ -66,6 +67,7 @@ const IndexDetail = ({ value, onChange }: IndexDetailProps, ref: Ref<IIndexDetai
               placeholder="Please enter the name for your index"
               value={finalValue.index}
               onChange={(e) => onValueChange("index", e.target.value)}
+              disabled={isEdit}
             />
           </EuiFormRow>
           <EuiFormRow label="Index alias  - optional" helpText="Select existing aliases or specify a new alias">

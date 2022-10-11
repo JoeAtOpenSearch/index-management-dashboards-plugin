@@ -40,7 +40,9 @@ const AliasSelect = ({ value, onChange }: AliasSelectProps) => {
       })
       .then((res: ServerResponse<{ alias: string }[]>) => {
         if (res.ok && res.response) {
-          setAllOptions([...new Set(res.response.map((item) => item.alias))].map((item) => ({ label: item })));
+          setAllOptions(
+            [...new Set(res.response.map((item) => item.alias).filter((item) => !item.startsWith(".")))].map((item) => ({ label: item }))
+          );
         } else {
           setAllOptions([]);
         }

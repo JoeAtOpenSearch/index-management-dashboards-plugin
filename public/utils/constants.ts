@@ -141,3 +141,40 @@ export const INDEX_DYNAMIC_SETTINGS = [
   "index.final_pipeline",
   "index.hidden",
 ];
+
+export const INDEX_MAPPING_TYPES = [
+  {
+    label: "null",
+  },
+  {
+    label: "boolean",
+  },
+  {
+    label: "float",
+  },
+  {
+    label: "double",
+  },
+  {
+    label: "integer",
+  },
+  {
+    label: "text",
+  },
+  {
+    label: "keyword",
+  },
+  {
+    label: "date",
+  },
+  {
+    label: "object",
+    hasChildren: true,
+  },
+  {
+    label: "array",
+    hasChildren: true,
+  },
+];
+
+export const INDEX_MAPPING_TYPES_WITH_CHILDREN = INDEX_MAPPING_TYPES.filter((item) => item.hasChildren).map((item) => item.label);

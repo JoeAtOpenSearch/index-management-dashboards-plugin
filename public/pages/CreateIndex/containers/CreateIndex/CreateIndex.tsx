@@ -23,7 +23,7 @@ interface CreateIndexProps extends RouteComponentProps<{ index?: string }> {
 
 interface CreateIndexState {
   indexDetail: IndexItem;
-  oldIndexDetail: IndexItem | null;
+  oldIndexDetail?: IndexItem;
   isSubmitting: boolean;
 }
 
@@ -39,8 +39,9 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
           number_of_replicas: 1,
         },
       },
+      mappings: {},
     },
-    oldIndexDetail: null,
+    oldIndexDetail: undefined,
   };
   indexDetailRef: IIndexDetailRef | null = null;
 
@@ -194,7 +195,7 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
 
   render() {
     const isEdit = this.isEdit;
-    const { indexDetail, isSubmitting } = this.state;
+    const { indexDetail, isSubmitting, oldIndexDetail } = this.state;
 
     return (
       <div style={{ padding: "0px 50px" }}>
@@ -202,7 +203,13 @@ export default class CreateIndex extends Component<CreateIndexProps, CreateIndex
           <h1>{isEdit ? "Edit" : "Create"} index</h1>
         </EuiTitle>
         <EuiSpacer />
-        <IndexDetail ref={(ref) => (this.indexDetailRef = ref)} isEdit={this.isEdit} value={indexDetail} onChange={this.onDetailChange} />
+        <IndexDetail
+          ref={(ref) => (this.indexDetailRef = ref)}
+          isEdit={this.isEdit}
+          value={indexDetail}
+          oldValue={oldIndexDetail}
+          onChange={this.onDetailChange}
+        />
         <EuiSpacer />
         <EuiSpacer />
         <EuiFlexGroup alignItems="center" justifyContent="flexEnd">

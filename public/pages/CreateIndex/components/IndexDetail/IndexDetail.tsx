@@ -9,11 +9,14 @@ import { set, get } from "lodash";
 import { ContentPanel } from "../../../../components/ContentPanel";
 import JSONEditor from "../../../../components/JSONEditor";
 import AliasSelect from "../../containers/AliasSelect";
+import IndexMapping from "../IndexMapping";
 import { IndexItem } from "../../../../../models/interfaces";
 import { Ref } from "react";
+import { INDEX_DYNAMIC_SETTINGS } from "../../../../utils/constants";
 
 export interface IndexDetailProps {
   value?: Partial<IndexItem>;
+  oldValue?: Partial<IndexItem>;
   onChange: (value: IndexDetailProps["value"]) => void;
   isEdit?: boolean;
 }
@@ -22,7 +25,7 @@ export interface IIndexDetailRef {
   validate: () => Promise<Boolean>;
 }
 
-const IndexDetail = ({ value, onChange, isEdit }: IndexDetailProps, ref: Ref<IIndexDetailRef>) => {
+const IndexDetail = ({ value, onChange, isEdit, oldValue }: IndexDetailProps, ref: Ref<IIndexDetailRef>) => {
   const onValueChange = useCallback(
     (name: string, val) => {
       let finalValue = value || {};
@@ -80,6 +83,7 @@ const IndexDetail = ({ value, onChange, isEdit }: IndexDetailProps, ref: Ref<IIn
         <div style={{ paddingLeft: "10px" }}>
           <EuiFormRow label="Number of shards" helpText="The number of primary shards in the index. Default is 1.">
             <EuiFieldNumber
+              disabled={isEdit && INDEX_DYNAMIC_SETTINGS.includes("index.number_of_shards")}
               placeholder="The number of primary shards in the index. Default is 1."
               value={finalValue?.settings?.index?.number_of_shards}
               onChange={(e) => onValueChange("settings.index.number_of_shards", e.target.value)}
@@ -87,6 +91,7 @@ const IndexDetail = ({ value, onChange, isEdit }: IndexDetailProps, ref: Ref<IIn
           </EuiFormRow>
           <EuiFormRow label="Number of replicas" helpText="The number of replica shards each primary shard should have.">
             <EuiFieldNumber
+              disabled={isEdit && INDEX_DYNAMIC_SETTINGS.includes("index.number_of_replicas")}
               placeholder="The number of replica shards each primary shard should have."
               value={finalValue?.settings?.index?.number_of_replicas}
               onChange={(e) => onValueChange("settings.index.number_of_replicas", e.target.value)}
@@ -124,13 +129,14 @@ const IndexDetail = ({ value, onChange, isEdit }: IndexDetailProps, ref: Ref<IIn
         </div>
       </ContentPanel>
       <EuiSpacer />
-      <ContentPanel title="Index mapping - optional" titleSize="s">
+      <ContentPanel title="Index mappings - optional" titleSize="s">
         <div style={{ paddingLeft: "10px" }}>
-          <EuiFormRow label="Number of shards" helpText="The number of primary shards in the index. Default is 1.">
-            <EuiFieldNumber
-              placeholder="The number of primary shards in the index. Default is 1."
-              value={finalValue?.settings?.index?.number_of_shards || 1}
-              onChange={(e) => onValueChange("settings.index.number_of_shards", e.target.value)}
+          <EuiFormRow fullWidth>
+            <IndexMapping
+              isEdit={isEdit}
+              value={finalValue?.mappings?.properties}
+              oldValue={oldValue?.mappings?.properties}
+              onChange={(val) => onValueChange("mappings.properties", val)}
             />
           </EuiFormRow>
         </div>

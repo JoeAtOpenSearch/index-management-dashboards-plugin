@@ -23,6 +23,14 @@ export interface ManagedIndexMetaData {
   info?: object;
 }
 
+export type MappingsProperties = Record<
+  string,
+  {
+    type: string;
+    properties?: MappingsProperties;
+  }
+>;
+
 export interface IndexItem {
   index: string;
   indexUuid?: string;
@@ -33,6 +41,9 @@ export interface IndexItem {
     };
   };
   aliases?: Record<string, {}>;
+  mappings?: {
+    properties?: MappingsProperties;
+  };
 }
 
 /**

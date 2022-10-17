@@ -159,19 +159,19 @@ const IndexMapping = ({ value, onChange, isEdit, oldValue }: IndexMappingProps, 
               const newFieldSettings = get(val, fieldName);
               set(newValue, id, newFieldSettings);
               if (INDEX_MAPPING_TYPES_WITH_CHILDREN.includes(newFieldSettings.type)) {
-                unset(newValue, [id, "type"].join("."));
+                unset(newValue, [id, "type"].join(".properties."));
               }
               onChange(newValue);
             }}
             onFieldNameChange={(newFieldName) => {
               const newValue = { ...value };
               const oldFieldSettings = get(value, id);
-              set(newValue, [pos, newFieldName].filter((item) => item).join("."), oldFieldSettings);
               unset(newValue, id);
+              set(newValue || {}, [pos, newFieldName].filter((item) => item).join(".properties."), oldFieldSettings);
               onChange(newValue);
             }}
             onAddSubField={() => {
-              addField([id, "properties", `${NEW_FIELD_PREFIX}-${Date.now()}`].join("."));
+              addField([id, `${NEW_FIELD_PREFIX}-${Date.now()}`].join(".properties."));
             }}
           />
         ),

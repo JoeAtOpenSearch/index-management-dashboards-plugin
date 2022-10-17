@@ -171,10 +171,6 @@ export const INDEX_MAPPING_TYPES = [
     label: "object",
     hasChildren: true,
   },
-  {
-    label: "array",
-    hasChildren: true,
-  },
 ];
 
 export const INDEX_MAPPING_TYPES_WITH_CHILDREN = INDEX_MAPPING_TYPES.filter((item) => item.hasChildren).map((item) => item.label);

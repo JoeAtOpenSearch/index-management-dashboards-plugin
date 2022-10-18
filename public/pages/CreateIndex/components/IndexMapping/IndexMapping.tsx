@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState, Ref, useEffect, useRef } from "react";
+import React, { forwardRef, useCallback, useState, Ref, useEffect, useRef } from "react";
 import {
   EuiTreeView,
   EuiIcon,
@@ -15,15 +15,12 @@ import {
   EuiTreeViewProps,
   EuiButton,
   EuiSpacer,
-  EuiLink,
   EuiButtonGroup,
 } from "@elastic/eui";
-import { set, get, unset } from "lodash";
-import { ContentPanel } from "../../../../components/ContentPanel";
+import { set, get } from "lodash";
 import JSONEditor from "../../../../components/JSONEditor";
-import AliasSelect from "../../containers/AliasSelect";
-import { IndexItem, MappingsProperties } from "../../../../../models/interfaces";
-import { INDEX_DYNAMIC_SETTINGS, INDEX_MAPPING_TYPES, INDEX_MAPPING_TYPES_WITH_CHILDREN } from "../../../../utils/constants";
+import { MappingsProperties, MappingsPropertiesObject } from "../../../../../models/interfaces";
+import { INDEX_MAPPING_TYPES, INDEX_MAPPING_TYPES_WITH_CHILDREN } from "../../../../utils/constants";
 import "./IndexMapping.scss";
 
 export interface IndexMappingProps {
@@ -43,24 +40,24 @@ export enum EDITOR_MODE {
 }
 
 interface IMappingLabel {
-  value: MappingsProperties;
+  value: MappingsProperties[number];
   onChange: (val: IMappingLabel["value"]) => void;
-  onFieldNameChange: (newFieldName: string, oldFieldName: string) => void;
+  // onFieldNameChange: (newFieldName: string, oldFieldName: string) => void;
   onAddSubField: () => void;
   disabled?: boolean;
 }
 
 const NEW_FIELD_PREFIX = "NAME_YOUR_FIELD";
 
-const MappingLabel = ({ value, onChange, onFieldNameChange, disabled, onAddSubField }: IMappingLabel) => {
-  const [fieldName, fieldSettings] = Object.entries(value || {})[0];
+const MappingLabel = ({ value, onChange, disabled, onAddSubField }: IMappingLabel) => {
+  const { fieldName, ...fieldSettings } = value;
   const [fieldNameError, setFieldNameError] = useState("");
   const ref = useRef<any>(null);
   const type = fieldSettings.type ? fieldSettings.type : "object";
   const onFieldChange = useCallback(
     (k, v) => {
       const newValue = { ...value };
-      set(newValue, `${fieldName}.${k}`, v);
+      set(newValue, k, v);
       onChange(newValue);
     },
     [value, onChange]
@@ -95,7 +92,7 @@ const MappingLabel = ({ value, onChange, onFieldNameChange, disabled, onAddSubFi
                   setFieldNameError("Field name is required, please input");
                   e.target.focus();
                 } else {
-                  onFieldNameChange(fieldNameState, fieldName);
+                  onFieldChange("fieldName", fieldNameState);
                 }
               }}
             />
@@ -137,9 +134,11 @@ const IndexMapping = ({ value, onChange, isEdit, oldValue }: IndexMappingProps, 
   const treeRef = useRef<EuiTreeView>(null);
   const [editorMode, setEditorMode] = useState<EDITOR_MODE>(EDITOR_MODE.VISUAL);
   const addField = useCallback(
-    (path) => {
-      const newValue = { ...value };
-      set(newValue, path, {
+    (pos, fieldName) => {
+      const newValue = [...(value || [])];
+      const nowProperties = ((pos ? get(newValue, pos) : (newValue as MappingsProperties)) || []) as MappingsProperties;
+      nowProperties.push({
+        fieldName,
         type: "text",
       });
       onChange(newValue);
@@ -147,31 +146,21 @@ const IndexMapping = ({ value, onChange, isEdit, oldValue }: IndexMappingProps, 
     [onChange, value]
   );
   const transformValueToTreeItems = (formValue: IndexMappingProps["value"], pos: string = ""): EuiTreeViewProps["items"] => {
-    return Object.entries(formValue || {}).map(([fieldName, fieldSettings]) => {
-      const id = [pos, fieldName].filter((item) => item).join(".properties.");
+    return (formValue || []).map((item, index) => {
+      const { fieldName, ...fieldSettings } = item;
+      const id = [pos, index].filter((item) => item !== "").join(".properties.");
       const payload: EuiTreeViewProps["items"][number] = {
         label: (
           <MappingLabel
             disabled={isEdit && !!get(oldValue, id)}
-            value={{ [fieldName]: fieldSettings }}
+            value={item}
             onChange={(val) => {
-              const newValue = { ...value };
-              const newFieldSettings = get(val, fieldName);
-              set(newValue, id, newFieldSettings);
-              if (INDEX_MAPPING_TYPES_WITH_CHILDREN.includes(newFieldSettings.type)) {
-                unset(newValue, [id, "type"].join(".properties."));
-              }
-              onChange(newValue);
-            }}
-            onFieldNameChange={(newFieldName) => {
-              const newValue = { ...value };
-              const oldFieldSettings = get(value, id);
-              unset(newValue, id);
-              set(newValue || {}, [pos, newFieldName].filter((item) => item).join(".properties."), oldFieldSettings);
+              const newValue = [...(value || [])];
+              set(newValue, id, val);
               onChange(newValue);
             }}
             onAddSubField={() => {
-              addField([id, `${NEW_FIELD_PREFIX}-${Date.now()}`].join(".properties."));
+              addField(`${id}.properties`, `${NEW_FIELD_PREFIX}-${Date.now()}`);
             }}
           />
         ),
@@ -224,7 +213,7 @@ const IndexMapping = ({ value, onChange, isEdit, oldValue }: IndexMappingProps, 
             <p>You have no field mappings.</p>
           )}
           <EuiSpacer />
-          <EuiButton onClick={() => addField(`${NEW_FIELD_PREFIX}-${Date.now()}`)}>Add a field</EuiButton>
+          <EuiButton onClick={() => addField("", `${NEW_FIELD_PREFIX}-${Date.now()}`)}>Add a field</EuiButton>
         </>
       ) : (
         <JSONEditor value={JSON.stringify(value || {}, null, 2)} onChange={(val) => onChange(JSON.parse(val))} />
@@ -235,3 +224,33 @@ const IndexMapping = ({ value, onChange, isEdit, oldValue }: IndexMappingProps, 
 
 // @ts-ignore
 export default forwardRef(IndexMapping);
+
+export const transformObjectToArray = (obj: MappingsPropertiesObject): MappingsProperties => {
+  return Object.entries(obj).map(([fieldName, fieldSettings]) => {
+    const { properties, ...others } = fieldSettings;
+    const payload: MappingsProperties[number] = {
+      ...others,
+      fieldName,
+    };
+    if (properties) {
+      payload.properties = transformObjectToArray(properties);
+    }
+    return payload;
+  });
+};
+
+export const transformArrayToObject = (array: MappingsProperties): MappingsPropertiesObject => {
+  return array.reduce((total, current) => {
+    const { fieldName, properties, ...others } = current;
+    const payload: MappingsPropertiesObject[string] = {
+      ...others,
+    };
+    if (properties) {
+      payload.properties = transformArrayToObject(properties);
+    }
+    return {
+      ...total,
+      [current.fieldName]: payload,
+    };
+  }, {} as MappingsPropertiesObject);
+};

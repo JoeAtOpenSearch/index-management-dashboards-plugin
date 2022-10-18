@@ -23,13 +23,19 @@ export interface ManagedIndexMetaData {
   info?: object;
 }
 
-export type MappingsProperties = Record<
+export type MappingsPropertiesObject = Record<
   string,
   {
     type: string;
-    properties?: MappingsProperties;
+    properties?: MappingsPropertiesObject;
   }
 >;
+
+export type MappingsProperties = {
+  fieldName: string;
+  type: string;
+  properties?: MappingsProperties;
+}[];
 
 export interface IndexItem {
   index: string;

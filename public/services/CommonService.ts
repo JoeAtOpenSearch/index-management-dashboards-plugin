@@ -31,6 +31,10 @@ export default class CommonService {
       });
     }
     const response = (await this.httpClient.fetch(url, payload)) as ServerResponse<any>;
-    return response;
+    if (response.ok) {
+      return response;
+    } else {
+      throw new Error(response.error);
+    }
   };
 }

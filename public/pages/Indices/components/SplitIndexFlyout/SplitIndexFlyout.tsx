@@ -4,6 +4,7 @@
  */
 import React, { Component } from "react";
 import {
+  EuiButton,
   EuiCallOut,
   EuiFlyout,
   EuiFlyoutBody,
@@ -14,11 +15,11 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
-import { get } from 'lodash';
-import FormGenerator, {IField, IFormGeneratorRef} from "../../../../components/FormGenerator";
-import {IndexItem} from "../../../../../models/interfaces";
+import { get } from "lodash";
+import FormGenerator, { IField, IFormGeneratorRef } from "../../../../components/FormGenerator";
+import { IndexItem } from "../../../../../models/interfaces";
 import FlyoutFooter from "../../../VisualCreatePolicy/components/FlyoutFooter";
-import {CatIndex} from "../../../../../server/models/interfaces";
+import { CatIndex } from "../../../../../server/models/interfaces";
 import CustomFormRow from "../../../../components/CustomFormRow";
 import { CoreStart } from "opensearch-dashboards/public";
 
@@ -27,13 +28,14 @@ interface SplitIndexProps {
   onCloseFlyout: () => void;
   onSplitIndex: (targetIndex: string, settingsPayload: IndexItem["settings"]) => void;
   getIndexSettings: (indexName: string, flat: boolean) => Promise<Record<string, IndexItem>>;
-  coreServices: CoreStart
+  coreServices: CoreStart;
 }
 
 export default class SplitIndexFlyout extends Component<SplitIndexProps> {
   state = {
     settings: {} as Required<IndexItem>["settings"],
     sourceIndexNotReadyReasons: [],
+    sourceIndexSettings: {} as IndexItem,
   };
 
   async componentDidMount() {
@@ -42,31 +44,11 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
 
   isSourceIndexReady = async () => {
     const { sourceIndex } = this.props;
-    const reasons = [];
-    let reason = "";
-
-    if (sourceIndex.health == "red") {
-      reason = "The source index's health is red.";
-      reasons.push(reason);
-    }
-
-    if (sourceIndex.status !== "open") {
-      reason = "The source index need to be in open status.";
-      reasons.push(reason);
-    }
-
     const { getIndexSettings } = this.props;
     const sourceIndexSettings = await getIndexSettings(sourceIndex.index, true);
-    if (get(sourceIndexSettings, [sourceIndex.index, 'settings', 'index.blocks.write']) !== "true") {
-      reason = "The source index's status need to set to blocks.write=true.";
-      reasons.push(reason);
-    }
-
-    if (reasons.length > 0) {
-      this.setState({
-        sourceIndexNotReadyReasons: reasons,
-      });
-    }
+    this.setState({
+      sourceIndexSettings,
+    });
   };
 
   formRef: IFormGeneratorRef | null = null;
@@ -90,6 +72,22 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
 
   render() {
     const { sourceIndex, onCloseFlyout } = this.props;
+    const { sourceIndexSettings } = this.state;
+    const reasons: string[] = [];
+    const blocksWrite = get(sourceIndexSettings, [sourceIndex.index, "settings", "index.blocks.write"]);
+
+    if (sourceIndex.health == "red") {
+      reasons.push("The source index's health is red.");
+    }
+
+    if (sourceIndex.status !== "open") {
+      reasons.push("The source index need to be in open status.");
+    }
+
+    if (blocksWrite !== "true") {
+      reasons.push("The source index's status need to set to blocks.write=true.");
+    }
+
     const blockNameList = ["targetIndex"];
     const formFields: IField[] = [
       {
@@ -118,7 +116,7 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
       {
         rowProps: {
           label: "Number of shards",
-          helpText: `Must be a multi of ${sourceIndex.pri}`
+          helpText: `Must be a multi of ${sourceIndex.pri}`,
         },
         name: "index.number_of_shards",
         type: "Number",
@@ -133,8 +131,7 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
                   return Promise.reject("Number of shards is required");
                 }
 
-                if (Number(value) < 1 ||
-                  Number(value) % Number(sourceIndex.pri) != 0) {
+                if (Number(value) < 1 || Number(value) % Number(sourceIndex.pri) != 0) {
                   return Promise.reject(`${value} must be a multiple of ${sourceIndex.pri}`);
                 }
 
@@ -148,27 +145,27 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
     ];
 
     return (
-      <EuiFlyout ownFocus={true} onClose={()=>{}} size="m" hideCloseButton>
+      <EuiFlyout ownFocus={true} onClose={() => {}} size="m" hideCloseButton>
         <EuiFlyoutHeader hasBorder>
           <EuiTitle size="m">
             <h2 id="flyoutTitle"> Split Index</h2>
           </EuiTitle>
         </EuiFlyoutHeader>
 
-        <EuiCallOut color="warning"
-                    hidden={this.state.sourceIndexNotReadyReasons.length == 0}
-                    data-test-subj="Source Index Warning">
+        <EuiCallOut color="warning" hidden={reasons.length == 0} data-test-subj="Source Index Warning">
           <div style={{ lineHeight: 1.5 }}>
             <p>The source index is not ready to split, may due to the following reasons:</p>
             <ul>
-              {this.state.sourceIndexNotReadyReasons.map((reason) => (
+              {reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
+            {blocksWrite !== "true" ? <EuiButton>change blocks write</EuiButton> : null}
             <EuiLink
               href={"https://opensearch.org/docs/1.2/opensearch/rest-api/index-apis/split/"}
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               Learn more
             </EuiLink>
           </div>
@@ -176,11 +173,9 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
 
         <EuiFlyoutBody>
           <CustomFormRow label="Source Index Name">
-            <EuiText data-test-subj="Source Index Name">
-              {sourceIndex.index}
-            </EuiText>
+            <EuiText data-test-subj="Source Index Name">{sourceIndex.index}</EuiText>
           </CustomFormRow>
-          <EuiSpacer/>
+          <EuiSpacer />
 
           <FormGenerator
             onChange={(totalValue) =>
@@ -214,11 +209,7 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
         </EuiFlyoutBody>
 
         <EuiFlyoutFooter>
-          <FlyoutFooter
-            action="Split"
-            edit={false}
-            onClickAction={this.onSubmit}
-            onClickCancel={onCloseFlyout} />
+          <FlyoutFooter action="Split" edit={false} onClickAction={this.onSubmit} onClickCancel={onCloseFlyout} />
         </EuiFlyoutFooter>
       </EuiFlyout>
     );

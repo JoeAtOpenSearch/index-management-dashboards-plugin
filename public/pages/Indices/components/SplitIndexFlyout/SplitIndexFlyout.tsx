@@ -73,19 +73,24 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
   render() {
     const { sourceIndex, onCloseFlyout } = this.props;
     const { sourceIndexSettings } = this.state;
-    const reasons: string[] = [];
+    const reasons: React.ReactChild[] = [];
     const blocksWrite = get(sourceIndexSettings, [sourceIndex.index, "settings", "index.blocks.write"]);
 
     if (sourceIndex.health == "red") {
-      reasons.push("The source index's health is red.");
+      reasons.push(<>The source index's health is red.</>);
     }
 
     if (sourceIndex.status !== "open") {
-      reasons.push("The source index need to be in open status.");
+      reasons.push(<>The source index need to be in open status.</>);
     }
 
     if (blocksWrite !== "true") {
-      reasons.push("The source index's status need to set to blocks.write=true.");
+      reasons.push(
+        <>
+          The source index's status need to set to blocks.write=true.
+          <EuiButton>change blocks write</EuiButton>
+        </>
+      );
     }
 
     const blockNameList = ["targetIndex"];
@@ -156,11 +161,10 @@ export default class SplitIndexFlyout extends Component<SplitIndexProps> {
           <div style={{ lineHeight: 1.5 }}>
             <p>The source index is not ready to split, may due to the following reasons:</p>
             <ul>
-              {reasons.map((reason) => (
-                <li key={reason}>{reason}</li>
+              {reasons.map((reason, reasonIndex) => (
+                <li key={reasonIndex}>{reason}</li>
               ))}
             </ul>
-            {blocksWrite !== "true" ? <EuiButton>change blocks write</EuiButton> : null}
             <EuiLink
               href={"https://opensearch.org/docs/1.2/opensearch/rest-api/index-apis/split/"}
               target="_blank"

@@ -9,72 +9,44 @@ Object {
         style="padding: 10px 10px;"
       >
         <div
-          class="euiFormRow"
-          id="some_html_id-row"
+          class="euiCheckbox"
         >
+          <input
+            class="euiCheckbox__input"
+            id="ConflictsOption"
+            type="checkbox"
+          />
           <div
-            class="euiFormRow__labelWrapper"
-          >
-            <label
-              class="euiFormLabel euiFormRow__label"
-              for="some_html_id"
-            >
-              Specify conflicts option
-            </label>
-          </div>
-          <div
-            class="euiFormRow__fieldWrapper"
+            class="euiCheckbox__square"
+          />
+          <label
+            class="euiCheckbox__label"
+            for="ConflictsOption"
           >
             <div
-              class="euiFormHelpText euiFormRow__text"
-              style="padding-top: 0px; padding-bottom: 4px;"
+              class="euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
             >
-              Set to proceed to continue reindexing even if there are conflicts.
-            </div>
-            <div>
               <div
-                class="euiRadio euiRadioGroup__item"
+                class="euiFlexItem euiFlexItem--flexGrowZero"
               >
-                <input
-                  checked=""
-                  class="euiRadio__input"
-                  id="proceed"
-                  name="conflicts group"
-                  type="radio"
-                  value=""
-                />
                 <div
-                  class="euiRadio__circle"
-                />
-                <label
-                  class="euiRadio__label"
-                  for="proceed"
+                  class="euiText euiText--extraSmall"
                 >
-                  Continue to proceed reindexing
-                </label>
-              </div>
-              <div
-                class="euiRadio euiRadioGroup__item"
-              >
-                <input
-                  class="euiRadio__input"
-                  id="abort"
-                  name="conflicts group"
-                  type="radio"
-                  value=""
-                />
-                <div
-                  class="euiRadio__circle"
-                />
-                <label
-                  class="euiRadio__label"
-                  for="abort"
-                >
-                  Abort reindexing
-                </label>
+                  <h4>
+                    Reindex only unique documents
+                  </h4>
+                </div>
               </div>
             </div>
-          </div>
+            <span
+              style="font-weight: 200; font-size: 12px;"
+            >
+              Copy only documents missing from destination index.
+            </span>
+            <div
+              class="euiSpacer euiSpacer--s"
+            />
+          </label>
         </div>
         <div
           class="euiSpacer euiSpacer--l"
@@ -101,7 +73,7 @@ Object {
               class="euiFormHelpText euiFormRow__text"
               style="padding-top: 0px; padding-bottom: 4px;"
             >
-              Number of sub-tasks OpenSearch should divide this task into. Default is 1, which means OpenSearch should not divide this task. Setting this parameter to auto indicates to OpenSearch that it should automatically decide how many slices to split the task into.
+              The number of subtasks OpenSearch should divide this task into. Setting to auto indicates OpenSearch that it should automatically decide how many slices to split the task into.
             </div>
             <div
               class="euiFormControlLayout"
@@ -133,7 +105,7 @@ Object {
               class="euiFormLabel euiFormRow__label"
               for="some_html_id"
             >
-              Pipeline
+              Ingest pipeline
             </label>
           </div>
           <div
@@ -143,7 +115,17 @@ Object {
               class="euiFormHelpText euiFormRow__text"
               style="padding-top: 0px; padding-bottom: 4px;"
             >
-              Pipeline pre-process documents before writing into destination.
+              Ingest pipeline to transform your data during the reindexing process.
+              <div
+                class="euiText euiText--extraSmall"
+              >
+                <button
+                  class="euiLink euiLink--primary"
+                  type="button"
+                >
+                  Learn more.
+                </button>
+              </div>
             </div>
             <div
               aria-expanded="false"
@@ -167,7 +149,7 @@ Object {
                     <p
                       class="euiComboBoxPlaceholder"
                     >
-                      Select a single pipeline
+                      Select a single ingest pipeline
                     </p>
                     <div
                       class="euiComboBox__input"
@@ -210,72 +192,44 @@ Object {
       style="padding: 10px 10px;"
     >
       <div
-        class="euiFormRow"
-        id="some_html_id-row"
+        class="euiCheckbox"
       >
+        <input
+          class="euiCheckbox__input"
+          id="ConflictsOption"
+          type="checkbox"
+        />
         <div
-          class="euiFormRow__labelWrapper"
-        >
-          <label
-            class="euiFormLabel euiFormRow__label"
-            for="some_html_id"
-          >
-            Specify conflicts option
-          </label>
-        </div>
-        <div
-          class="euiFormRow__fieldWrapper"
+          class="euiCheckbox__square"
+        />
+        <label
+          class="euiCheckbox__label"
+          for="ConflictsOption"
         >
           <div
-            class="euiFormHelpText euiFormRow__text"
-            style="padding-top: 0px; padding-bottom: 4px;"
+            class="euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
           >
-            Set to proceed to continue reindexing even if there are conflicts.
-          </div>
-          <div>
             <div
-              class="euiRadio euiRadioGroup__item"
+              class="euiFlexItem euiFlexItem--flexGrowZero"
             >
-              <input
-                checked=""
-                class="euiRadio__input"
-                id="proceed"
-                name="conflicts group"
-                type="radio"
-                value=""
-              />
               <div
-                class="euiRadio__circle"
-              />
-              <label
-                class="euiRadio__label"
-                for="proceed"
+                class="euiText euiText--extraSmall"
               >
-                Continue to proceed reindexing
-              </label>
-            </div>
-            <div
-              class="euiRadio euiRadioGroup__item"
-            >
-              <input
-                class="euiRadio__input"
-                id="abort"
-                name="conflicts group"
-                type="radio"
-                value=""
-              />
-              <div
-                class="euiRadio__circle"
-              />
-              <label
-                class="euiRadio__label"
-                for="abort"
-              >
-                Abort reindexing
-              </label>
+                <h4>
+                  Reindex only unique documents
+                </h4>
+              </div>
             </div>
           </div>
-        </div>
+          <span
+            style="font-weight: 200; font-size: 12px;"
+          >
+            Copy only documents missing from destination index.
+          </span>
+          <div
+            class="euiSpacer euiSpacer--s"
+          />
+        </label>
       </div>
       <div
         class="euiSpacer euiSpacer--l"
@@ -302,7 +256,7 @@ Object {
             class="euiFormHelpText euiFormRow__text"
             style="padding-top: 0px; padding-bottom: 4px;"
           >
-            Number of sub-tasks OpenSearch should divide this task into. Default is 1, which means OpenSearch should not divide this task. Setting this parameter to auto indicates to OpenSearch that it should automatically decide how many slices to split the task into.
+            The number of subtasks OpenSearch should divide this task into. Setting to auto indicates OpenSearch that it should automatically decide how many slices to split the task into.
           </div>
           <div
             class="euiFormControlLayout"
@@ -334,7 +288,7 @@ Object {
             class="euiFormLabel euiFormRow__label"
             for="some_html_id"
           >
-            Pipeline
+            Ingest pipeline
           </label>
         </div>
         <div
@@ -344,7 +298,17 @@ Object {
             class="euiFormHelpText euiFormRow__text"
             style="padding-top: 0px; padding-bottom: 4px;"
           >
-            Pipeline pre-process documents before writing into destination.
+            Ingest pipeline to transform your data during the reindexing process.
+            <div
+              class="euiText euiText--extraSmall"
+            >
+              <button
+                class="euiLink euiLink--primary"
+                type="button"
+              >
+                Learn more.
+              </button>
+            </div>
           </div>
           <div
             aria-expanded="false"
@@ -368,7 +332,7 @@ Object {
                   <p
                     class="euiComboBoxPlaceholder"
                   >
-                    Select a single pipeline
+                    Select a single ingest pipeline
                   </p>
                   <div
                     class="euiComboBox__input"

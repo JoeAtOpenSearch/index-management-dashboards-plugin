@@ -58,7 +58,7 @@ interface ReindexState {
   sliceError?: string;
   pipelines: EuiComboBoxOptionOption[];
   selectedPipelines?: EuiComboBoxOptionOption[];
-  conflicts: string;
+  copyUniqueDoc: boolean;
   executing: boolean;
   showCreateIndexFlyout: boolean;
 }
@@ -77,7 +77,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
       slices: DEFAULT_SLICE,
       pipelines: [],
       advancedSettingsOpen: false,
-      conflicts: "abort",
+      copyUniqueDoc: false,
       sourceErr: [],
       destError: null,
       subset: false,
@@ -199,7 +199,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
   };
 
   onClickAction = async () => {
-    const { sourceQuery, destination, slices, selectedPipelines, conflicts, sources, subset } = this.state;
+    const { sourceQuery, destination, slices, selectedPipelines, copyUniqueDoc, sources, subset } = this.state;
 
     if (!(await this.validateSource(sources)) || !this.validateDestination(destination) || !this.validateSlices(slices)) {
       return;
@@ -217,13 +217,13 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
         waitForCompletion: false,
         slices: slices,
         body: {
-          conflicts: conflicts,
+          conflicts: copyUniqueDoc ? "proceed" : "abort",
           source: {
             index: sources.map((item) => item.label).join(","),
           },
           dest: {
             index: destination.map((item) => item.label)[0],
-            op_type: isDestAsDataStream ? "create" : "index",
+            op_type: isDestAsDataStream || copyUniqueDoc ? "create" : "index",
           },
         },
       };
@@ -447,8 +447,8 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
     this.setState({ selectedPipelines: selectedOptions });
   };
 
-  onConflictsChange = (val: string): void => {
-    this.setState({ conflicts: val });
+  onCopyUniqueDocChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    this.setState({ copyUniqueDoc: e.target.checked });
   };
 
   onSubsetChange = (event: EuiSwitchEvent) => {
@@ -457,7 +457,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
 
   render() {
     const { sources, destination, sourceQuery, destError, slices, sourceErr, advancedSettingsOpen, showCreateIndexFlyout } = this.state;
-    const { conflicts, subset, executing, sourceQueryErr } = this.state;
+    const { copyUniqueDoc, subset, executing, sourceQueryErr } = this.state;
 
     const advanceTitle = (
       <EuiFlexGroup gutterSize="none" justifyContent="flexStart" alignItems="center">
@@ -610,8 +610,8 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
               getAllPipelines={this.getAllPipelines}
               selectedPipelines={this.state.selectedPipelines}
               onSelectedPipelinesChange={this.onPipelineChange}
-              conflicts={conflicts}
-              onConflictsChange={this.onConflictsChange}
+              copyUniqueDoc={copyUniqueDoc}
+              onCopyUniqueDocChange={this.onCopyUniqueDocChange}
             />
           )}
         </ContentPanel>

@@ -5,9 +5,10 @@
 
 import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import CustomFormRow from "../../../../components/CustomFormRow";
-import { EuiComboBox, EuiComboBoxOptionOption, EuiFieldText, EuiRadioGroup, EuiSpacer } from "@elastic/eui";
+import { EuiCheckbox, EuiComboBox, EuiComboBoxOptionOption, EuiFieldText, EuiLink, EuiSpacer, EuiText } from "@elastic/eui";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { CoreStart } from "opensearch-dashboards/public";
+import CustomLabel from "../../../../components/CustomLabel";
 
 interface ReindexOptionsProps {
   slices: string;
@@ -16,8 +17,8 @@ interface ReindexOptionsProps {
   selectedPipelines?: EuiComboBoxOptionOption[];
   onSelectedPipelinesChange: (options: EuiComboBoxOptionOption[]) => void;
   getAllPipelines: () => Promise<EuiComboBoxOptionOption[]>;
-  conflicts: string;
-  onConflictsChange: (val: string) => void;
+  copyUniqueDoc: boolean;
+  onCopyUniqueDocChange: (val: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const ReindexAdvancedOptions = (props: ReindexOptionsProps) => {
@@ -32,8 +33,8 @@ const ReindexAdvancedOptions = (props: ReindexOptionsProps) => {
     selectedPipelines,
     onSelectedPipelinesChange,
     getAllPipelines,
-    conflicts,
-    onConflictsChange,
+    copyUniqueDoc,
+    onCopyUniqueDocChange,
   } = props;
 
   useEffect(() => {
@@ -48,40 +49,40 @@ const ReindexAdvancedOptions = (props: ReindexOptionsProps) => {
 
   return (
     <div style={{ padding: "10px 10px" }}>
-      <CustomFormRow label="Specify conflicts option" helpText="Set to proceed to continue reindexing even if there are conflicts.">
-        <EuiRadioGroup
-          options={[
-            {
-              id: "proceed",
-              label: "Continue to proceed reindexing",
-            },
-            {
-              id: "abort",
-              label: "Abort reindexing",
-            },
-          ]}
-          idSelected={conflicts}
-          onChange={onConflictsChange}
-          name="conflicts group"
-        />
-      </CustomFormRow>
-
+      <EuiCheckbox
+        id="ConflictsOption"
+        label={<CustomLabel title="Reindex only unique documents" helpText="Copy only documents missing from destination index." />}
+        checked={copyUniqueDoc}
+        onChange={onCopyUniqueDocChange}
+      />
       <EuiSpacer />
 
       <CustomFormRow
         isInvalid={!!sliceErr}
         error={sliceErr}
         label="Slices"
-        helpText="Number of sub-tasks OpenSearch should divide this task into. Default is 1, which means OpenSearch should not divide this task. Setting this parameter to auto indicates to OpenSearch that it should automatically decide how many slices to split the task into."
+        helpText="The number of subtasks OpenSearch should divide this task into. Setting to auto indicates OpenSearch that it should automatically decide how many slices to split the task into."
       >
         <EuiFieldText data-test-subj="slices" value={slices} onChange={onSlicesChange} />
       </CustomFormRow>
 
       <EuiSpacer />
-      <CustomFormRow label="Pipeline" helpText="Pipeline pre-process documents before writing into destination.">
+      <CustomFormRow
+        label="Ingest pipeline"
+        helpText={
+          <>
+            Ingest pipeline to transform your data during the reindexing process.
+            <EuiText size="xs">
+              <EuiLink href={coreServices.docLinks.links.opensearch.reindexData.transform} target="_blank">
+                Learn more.
+              </EuiLink>
+            </EuiText>
+          </>
+        }
+      >
         <EuiComboBox
           aria-label="Ingest Pipeline"
-          placeholder="Select a single pipeline"
+          placeholder="Select a single ingest pipeline"
           data-test-subj="pipelineCombobox"
           singleSelection={{ asPlainText: true }}
           options={pipelines}

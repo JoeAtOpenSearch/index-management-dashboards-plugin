@@ -11,29 +11,6 @@ import { IJSONEditorRef } from "../JSONEditor";
 import { JSONDiffEditorProps } from "./interface";
 import "./JSONDiffEditor.scss";
 
-monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-  validate: true,
-  schemas: [
-    {
-      uri: "test",
-      fileMatch: ["*"],
-      schema: {
-        title: "Product",
-        description: "A product in the catalog",
-        type: "object",
-        properties: {
-          productId: {
-            description: "The unique identifier for a product",
-            type: "integer",
-          },
-        },
-        additionalProperties: false,
-        required: ["productId"],
-      },
-    },
-  ],
-});
-
 const JSONDiffEditor = forwardRef(({ value, onChange, ...others }: JSONDiffEditorProps, ref: React.Ref<IJSONEditorRef>) => {
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -88,7 +65,7 @@ const JSONDiffEditor = forwardRef(({ value, onChange, ...others }: JSONDiffEdito
     editorRef.current?.getModifiedEditor().getDomNode()?.setAttribute("data-test-subj", "codeEditorContainer");
     return () => {
       document.body.removeEventListener("click", onClickOutsideHandler.current);
-      editorRef.current?.getDomNode().addEventListener("click", onClickContainer.current);
+      editorRef.current?.getDomNode().removeEventListener("click", onClickContainer.current);
     };
   }, [isReady]);
 

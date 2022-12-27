@@ -275,6 +275,9 @@ const IndexMapping = (
                 data-test-subj="previousMappingsJsonButton"
                 onClick={() => {
                   Modal.show({
+                    style: {
+                      width: "70vw",
+                    },
                     title: "Previous mappings",
                     content: (
                       <MonacoJSONEditor

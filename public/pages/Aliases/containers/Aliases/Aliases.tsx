@@ -273,6 +273,7 @@ class Aliases extends Component<AliasesProps, AliasesState> {
                     }}
                     selectedItems={this.state.selectedItems}
                     onDelete={this.getAliases}
+                    history={this.props.history}
                   />
                 ),
               },

@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { EuiFieldNumber, EuiFieldText, EuiSwitch, EuiSelect, EuiCode, EuiComboBox, EuiText } from "@elastic/eui";
+import { EuiFieldNumber, EuiFieldText, EuiSwitch, EuiSelect, EuiComboBox, EuiText } from "@elastic/eui";
 import EuiToolTipWrapper, { IEuiToolTipWrapperProps } from "../../EuiToolTipWrapper";
 
 export type ComponentMapEnum = "Input" | "Number" | "Switch" | "Select" | "Text" | "ComboBoxSingle";
@@ -45,7 +45,14 @@ const componentMap: Record<ComponentMapEnum, React.ComponentType<IFieldComponent
           {...others}
           options={options}
           onCreateOption={(searchValue) => {
-            const findItem = options.find((item: { label: string }) => item.label === searchValue);
+            const allOptions = (options as { label: string; options?: { label: string }[] }[]).reduce((total, current) => {
+              if (current.options) {
+                return [...total, ...current.options];
+              } else {
+                return [...total, current];
+              }
+            }, [] as { label: string }[]);
+            const findItem = allOptions.find((item: { label: string }) => item.label === searchValue);
             if (findItem) {
               onChange(searchValue);
             }

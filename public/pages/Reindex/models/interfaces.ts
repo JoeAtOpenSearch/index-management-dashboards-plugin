@@ -9,6 +9,11 @@ export interface ReindexRequest {
   maxDocs?: number;
   body: {
     conflicts?: string;
+    remote?: {
+      host?: string;
+      username?: string;
+      password?: string;
+    };
     source: {
       index: string;
       [key: string]: any;

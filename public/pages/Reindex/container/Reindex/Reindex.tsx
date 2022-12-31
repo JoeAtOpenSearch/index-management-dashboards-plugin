@@ -38,6 +38,8 @@ import CreateIndexFlyout from "../../components/CreateIndexFlyout";
 import { parseIndexNames, checkDuplicate } from "../../utils/helper";
 import { jobSchedulerInstance } from "../../../../context/JobSchedulerContext";
 import { ReindexJobMetaData } from "../../../../models/interfaces";
+import FormGenerator, { AllBuiltInComponents, IFormGeneratorRef } from "../../../../components/FormGenerator";
+import RemoteSelect, { RemoteSelectProps } from "../../../../components/RemoteSelect";
 
 interface ReindexProps extends RouteComponentProps {
   commonService: CommonService;
@@ -61,8 +63,17 @@ interface ReindexState {
   conflicts: string;
   executing: boolean;
   showCreateIndexFlyout: boolean;
+  isRemote: boolean;
+  remoteInfo: {
+    host?: string;
+    username?: string;
+    password?: string;
+  };
 }
 
+const RemoteIndexSelect = (props: Omit<RemoteSelectProps, "refreshOptions">) => {
+  return <RemoteSelect {...props} refreshOptions={() => Promise.resolve({ ok: true, response: [] })} />;
+};
 export default class Reindex extends Component<ReindexProps, ReindexState> {
   static contextType = CoreServicesContext;
 
@@ -83,8 +94,12 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
       subset: false,
       executing: false,
       showCreateIndexFlyout: false,
+      isRemote: false,
+      remoteInfo: {},
     };
   }
+
+  remoteSourceRef: IFormGeneratorRef | null = null;
 
   async componentDidMount() {
     this.context.chrome.setBreadcrumbs([
@@ -199,7 +214,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
   };
 
   onClickAction = async () => {
-    const { sourceQuery, destination, slices, selectedPipelines, conflicts, sources, subset } = this.state;
+    const { sourceQuery, destination, slices, selectedPipelines, conflicts, sources, subset, isRemote } = this.state;
 
     if (!(await this.validateSource(sources)) || !this.validateDestination(destination) || !this.validateSlices(slices)) {
       return;
@@ -207,6 +222,13 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
     // validate query DSL
     if (subset && !(await this.validateQueryDSL(sources, sourceQuery))) {
       return;
+    }
+
+    if (isRemote) {
+      const { errors } = (await this.remoteSourceRef?.validatePromise()) || {};
+      if (errors) {
+        return;
+      }
     }
 
     const [isDestAsDataStream] = destination.map((dest) => dest.value?.isDataStream);
@@ -231,14 +253,21 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
       if (subset) {
         Object.assign(reindexReq.body.source, JSON.parse(sourceQuery));
       }
+      if (isRemote) {
+        const { values } = (await this.remoteSourceRef?.validatePromise()) || {};
+        reindexReq.body.source.remote = this.state.remoteInfo;
+        reindexReq.body.source.index = values.source.join(",");
+      }
       // set pipeline if available
       if (selectedPipelines && selectedPipelines.length > 0) {
         reindexReq.body.dest.pipeline = selectedPipelines[0].label;
       }
-      await this.onReindexConfirm(reindexReq);
+      const result = await this.onReindexConfirm(reindexReq);
       this.setState({ executing: false });
-      // back to indices page
-      this.onCancel();
+      if (result.ok) {
+        // back to indices page
+        this.onCancel();
+      }
     } catch (error) {
       this.context.notifications.toasts.addDanger(`Reindex operation error happened ${error}`);
       this.setState({ executing: false });
@@ -274,6 +303,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
     } else {
       this.context.notifications.toasts.addDanger(`Reindex operation error ${res?.error}`);
     }
+    return res;
   };
 
   getAllSelectedIndices = (): string[] => {
@@ -503,24 +533,86 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
         <EuiSpacer />
 
         <ContentPanel title="Configure source index" titleSize="s">
-          <EuiSpacer />
-          <CustomFormRow
-            label="Specify source indexes or data streams"
-            isInvalid={sourceErr.length > 0}
-            error={sourceErr}
-            fullWidth
-            helpText="Specify one or more indexes or data streams you want to reindex from."
-          >
-            <IndexSelect
-              data-test-subj="sourceSelector"
-              getIndexOptions={this.getIndexOptions}
-              onSelectedOptions={this.onSourceSelection}
-              singleSelect={false}
-              selectedOption={sources}
-              excludeList={destination}
+          <EuiSpacer size="s" />
+          <AllBuiltInComponents.Switch
+            label="If the source indexes are from remote cluster."
+            showLabel
+            value={this.state.isRemote}
+            onChange={(isRemote) =>
+              this.setState({
+                isRemote,
+              })
+            }
+          />
+          <div style={{ display: this.state.isRemote ? "block" : "none" }}>
+            <EuiSpacer />
+            <CustomFormRow
+              label="Remote info"
+              helpText={
+                <>
+                  Specify remote information here.
+                  <EuiLink
+                    target="_blank"
+                    external
+                    href={`https://opensearch.org/docs/${this.context.docLinks.DOC_LINK_VERSION}/opensearch/reindex-data/#reindex-from-a-remote-cluster`}
+                  >
+                    Learn more.
+                  </EuiLink>
+                </>
+              }
+            >
+              <JSONEditor
+                height="200px"
+                value={JSON.stringify(this.state.remoteInfo, null, 2)}
+                onChange={(val) => {
+                  this.setState({
+                    remoteInfo: JSON.parse(val),
+                  });
+                }}
+              />
+            </CustomFormRow>
+            <EuiSpacer />
+            <FormGenerator
+              ref={(ref) => (this.remoteSourceRef = ref)}
+              formFields={[
+                {
+                  name: "source",
+                  component: RemoteIndexSelect,
+                  rowProps: {
+                    label: "Specify remote source indexes or data streams",
+                    helpText: "Specify one or more remote indexes or data streams you want to reindex from.",
+                  },
+                  options: {
+                    rules: [
+                      {
+                        required: true,
+                        message: REINDEX_ERROR_PROMPT.SOURCE_REQUIRED,
+                      },
+                    ],
+                  },
+                },
+              ]}
             />
-          </CustomFormRow>
-
+          </div>
+          <div style={{ display: this.state.isRemote ? "none" : "block" }}>
+            <EuiSpacer />
+            <CustomFormRow
+              label="Specify source indexes or data streams"
+              isInvalid={sourceErr.length > 0}
+              error={sourceErr}
+              fullWidth
+              helpText="Specify one or more indexes or data streams you want to reindex from."
+            >
+              <IndexSelect
+                data-test-subj="sourceSelector"
+                getIndexOptions={this.getIndexOptions}
+                onSelectedOptions={this.onSourceSelection}
+                singleSelect={false}
+                selectedOption={sources}
+                excludeList={destination}
+              />
+            </CustomFormRow>
+          </div>
           <EuiSpacer />
           <CustomFormRow>
             <EuiRadioGroup

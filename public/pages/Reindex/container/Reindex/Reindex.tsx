@@ -380,6 +380,10 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
   };
 
   validateSource = async (sourceIndices: EuiComboBoxOptionOption<IndexSelectItem>[]): Promise<boolean> => {
+    const { isRemote } = this.state;
+    if (isRemote) {
+      return true;
+    }
     if (sourceIndices.length == 0) {
       this.setState({ sourceErr: [REINDEX_ERROR_PROMPT.SOURCE_REQUIRED] });
       return false;

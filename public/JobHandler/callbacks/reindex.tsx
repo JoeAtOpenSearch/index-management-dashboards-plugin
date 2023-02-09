@@ -9,8 +9,8 @@ type TaskResult = {
   found: boolean;
   _source: {
     completed: boolean;
-    response: {
-      failures: {
+    response?: {
+      failures?: {
         cause?: {
           reason: string;
         };
@@ -36,7 +36,7 @@ export const callbackForReindex: CallbackType = async (job: ReindexJobMetaData, 
   if (tasksResult.ok) {
     const { _source, found } = tasksResult.response;
     const { completed, response, error } = (_source || {}) as TaskResult["_source"];
-    const { failures } = response;
+    const { failures = [] } = response || {};
     if (completed && found) {
       if (!failures.length && !error?.reason) {
         if (extras.toastId) {

@@ -624,6 +624,14 @@ export interface IAPICaller {
   data?: any;
 }
 
+export interface IProxyCaller extends IAPICaller {
+  remoteInfo: {
+    host: string;
+    username?: string;
+    password?: string;
+  };
+}
+
 export interface IRecoveryItem {
   index: string;
   stage: "done" | "translog";

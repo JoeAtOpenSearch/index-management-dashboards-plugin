@@ -2,11 +2,10 @@
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { HttpFetchOptions, HttpSetup } from "opensearch-dashboards/public";
 import { ServerResponse } from "../../server/models/types";
 import { NODE_API } from "../../utils/constants";
-import { IAPICaller } from "../../models/interfaces";
+import { IAPICaller, IProxyCaller } from "../../models/interfaces";
 
 export default class CommonService {
   httpClient: HttpSetup;
@@ -20,6 +19,18 @@ export default class CommonService {
     const payload: HttpFetchOptions = {};
     payload.method = "POST";
     payload.body = JSON.stringify({
+      data: params.data,
+      endpoint: params.endpoint,
+    });
+    return (await this.httpClient.fetch(url, payload)) as ServerResponse<T>;
+  };
+
+  proxyCaller = async <T>(params: IProxyCaller): Promise<ServerResponse<T>> => {
+    let url = `${NODE_API.PROXY_CALLER}`;
+    const payload: HttpFetchOptions = {};
+    payload.method = "POST";
+    payload.body = JSON.stringify({
+      remoteInfo: params.remoteInfo,
       data: params.data,
       endpoint: params.endpoint,
     });

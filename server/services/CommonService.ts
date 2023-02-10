@@ -19,6 +19,8 @@ export interface ICommonCaller {
   <T>(arg: any): T;
 }
 
+let requestId = 0;
+
 export default class CommonService {
   osDriver: ILegacyCustomClusterClient;
 
@@ -103,7 +105,13 @@ export default class CommonService {
     }
 
     try {
-      const result = await endpointFunction.call(finalClient, data);
+      const result =
+        endpoint === "transport.request"
+          ? await finalClient.transport.request(data, {
+              id: requestId++,
+            })
+          : await endpointFunction.call(finalClient, data);
+      finalClient.close();
       return response.custom({
         statusCode: 200,
         body: {
@@ -112,6 +120,7 @@ export default class CommonService {
         },
       });
     } catch (err) {
+      finalClient.close();
       return response.custom({
         statusCode: 200,
         body: {

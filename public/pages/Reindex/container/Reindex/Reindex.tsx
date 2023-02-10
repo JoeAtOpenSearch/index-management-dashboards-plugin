@@ -18,7 +18,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import _ from "lodash";
-import React, { ChangeEvent, Component } from "react";
+import React, { ChangeEvent, Component, useCallback, useContext, useEffect, useRef } from "react";
 import { CoreStart } from "opensearch-dashboards/public";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { getErrorMessage } from "../../../../utils/helpers";
@@ -27,9 +27,9 @@ import CustomFormRow from "../../../../components/CustomFormRow";
 import { ContentPanel } from "../../../../components/ContentPanel";
 import ReindexAdvancedOptions from "../../components/ReindexAdvancedOptions";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
-import { CommonService, IndexService } from "../../../../services";
+import { CommonService, IndexService, ServicesContext } from "../../../../services";
 import { RouteComponentProps } from "react-router-dom";
-import IndexSelect from "../../components/IndexSelect";
+import IndexSelect, { IndexSelectProps } from "../../components/IndexSelect";
 import { DEFAULT_QUERY, REINDEX_ERROR_PROMPT, DEFAULT_SLICE } from "../../utils/constants";
 import JSONEditor from "../../../../components/JSONEditor";
 import { REQUEST } from "../../../../../utils/constants";
@@ -37,9 +37,11 @@ import CreateIndexFlyout from "../../components/CreateIndexFlyout";
 import queryString from "query-string";
 import { parseIndexNames, checkDuplicate } from "../../utils/helper";
 import { jobSchedulerInstance } from "../../../../context/JobSchedulerContext";
-import { ReindexJobMetaData } from "../../../../models/interfaces";
+import { BrowserServices, ReindexJobMetaData } from "../../../../models/interfaces";
 import FormGenerator, { AllBuiltInComponents, IFormGeneratorRef } from "../../../../components/FormGenerator";
 import RemoteSelect, { RemoteSelectProps } from "../../../../components/RemoteSelect";
+import { IProxyCaller } from "../../../../../models/interfaces";
+import { Alias, DataStream } from "../../../../../server/models/interfaces";
 
 interface ReindexProps extends RouteComponentProps {
   commonService: CommonService;
@@ -72,8 +74,126 @@ interface ReindexState {
   };
 }
 
-const RemoteIndexSelect = (props: Omit<RemoteSelectProps, "refreshOptions">) => {
-  return <RemoteSelect {...props} refreshOptions={() => Promise.resolve({ ok: true, response: [] })} />;
+const RemoteIndexSelect = (
+  props: Omit<IndexSelectProps, "onSelectedOptions" | "selectedOption"> & {
+    value: IndexSelectProps["selectedOption"];
+    onChange: IndexSelectProps["onSelectedOptions"];
+    remoteInfo?: IProxyCaller["remoteInfo"];
+  }
+) => {
+  const { remoteInfo } = props;
+  const services = useContext(ServicesContext) as BrowserServices;
+  const context = useContext(CoreServicesContext) as CoreStart;
+  const remoteIndexesCache = useRef<Record<string, EuiComboBoxOptionOption<IndexSelectItem>[]>>({});
+  const getIndexOptions = useCallback(async (): Promise<EuiComboBoxOptionOption<IndexSelectItem>[]> => {
+    if (!remoteInfo?.host) {
+      return [];
+    }
+    const cacheKey = JSON.stringify(remoteInfo);
+    if (remoteIndexesCache.current[cacheKey]) {
+      return remoteIndexesCache.current[cacheKey];
+    }
+
+    let options: EuiComboBoxOptionOption<IndexSelectItem>[] = [];
+    try {
+      const [indexResponse, dataStreamResponse, aliasResponse] = await Promise.all([
+        services.commonService.proxyCaller<{ index: string; status: string; health: string }[]>({
+          remoteInfo,
+          endpoint: "cat.indices",
+          data: {
+            format: "json",
+          },
+        }),
+        services.commonService.proxyCaller<{ data_streams: DataStream[] }>({
+          remoteInfo,
+          endpoint: "transport.request",
+          data: {
+            path: "/_data_stream",
+            method: "GET",
+          },
+        }),
+        services.commonService.proxyCaller<Alias[]>({
+          remoteInfo,
+          endpoint: "transport.request",
+          data: {
+            path: "/_cat/aliases?format=json",
+            method: "GET",
+          },
+        }),
+      ]);
+      let dataStreamBackingIndexes: DataStream["indices"] = [];
+      if (dataStreamResponse && dataStreamResponse.ok) {
+        dataStreamBackingIndexes = dataStreamResponse.response.data_streams.reduce(
+          (total, current) => [...total, ...current.indices],
+          [] as DataStream["indices"]
+        );
+      }
+      if (indexResponse.ok) {
+        const indices = indexResponse.response
+          .map((index) => ({
+            label: index.index,
+            value: { isIndex: true, status: index.status, health: index.health },
+          }))
+          .filter((item) => !dataStreamBackingIndexes.find((backingIndexes) => backingIndexes.index_name === item.label));
+        options.push({ label: "indices", options: indices });
+      } else {
+        context.notifications.toasts.addDanger(indexResponse.error);
+      }
+
+      if (dataStreamResponse && dataStreamResponse.ok) {
+        const dataStreams = dataStreamResponse.response.data_streams.map((ds) => ({
+          label: ds.name,
+          health: ds.status.toLowerCase(),
+          value: {
+            isDataStream: true,
+            indices: ds.indices.map((item) => item.index_name),
+            writingIndex: ds.indices
+              .map((item) => item.index_name)
+              .sort()
+              .reverse()[0],
+          },
+        }));
+        options.push({ label: "dataStreams", options: dataStreams });
+      }
+
+      if (aliasResponse && aliasResponse.ok) {
+        const aliases = _.uniq(aliasResponse.response.map((alias) => alias.alias)).map((name) => {
+          const indexBelongsToAlias = aliasResponse.response.filter((alias) => alias.alias === name).map((alias) => alias.index);
+          let writingIndex = aliasResponse.response
+            .filter((alias) => alias.alias === name && alias.is_write_index === "true")
+            .map((alias) => alias.index);
+          if (writingIndex.length === 0 && indexBelongsToAlias.length === 1) {
+            // set writing index when there is only 1 index for alias
+            writingIndex = indexBelongsToAlias;
+          }
+          return {
+            label: name,
+            value: {
+              isAlias: true,
+              indices: indexBelongsToAlias,
+              writingIndex: writingIndex[0],
+            },
+          };
+        });
+        options.push({ label: "aliases", options: aliases });
+      } else {
+        context.notifications.toasts.addDanger(aliasResponse.error);
+      }
+    } catch (err) {
+      context.notifications.toasts.addDanger(getErrorMessage(err, "There was a problem fetching index options."));
+    }
+    remoteIndexesCache.current[cacheKey] = options;
+    return options;
+  }, [remoteInfo]);
+  return (
+    <IndexSelect
+      {...props}
+      async={false}
+      onSelectedOptions={props.onChange}
+      selectedOption={props.value}
+      getIndexOptions={getIndexOptions}
+    />
+  );
 };
 export default class Reindex extends Component<ReindexProps, ReindexState> {
   static contextType = CoreServicesContext;
@@ -264,7 +384,7 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
       if (isRemote) {
         const { values } = (await this.remoteSourceRef?.validatePromise()) || {};
         reindexReq.body.source.remote = this.state.remoteInfo;
-        reindexReq.body.source.index = values.source.join(",");
+        reindexReq.body.source.index = values.source.map((item: { label: string }) => item.label).join(",");
       }
       // set pipeline if available
       if (selectedPipelines && selectedPipelines.length > 0) {
@@ -619,12 +739,15 @@ export default class Reindex extends Component<ReindexProps, ReindexState> {
               formFields={[
                 {
                   name: "source",
-                  component: RemoteIndexSelect,
+                  component: RemoteIndexSelect as any,
                   rowProps: {
                     label: "Specify remote source indexes or data streams",
                     helpText: "Specify one or more remote indexes or data streams you want to reindex from.",
                   },
                   options: {
+                    props: {
+                      remoteInfo: this.state.remoteInfo,
+                    },
                     rules: [
                       {
                         required: true,

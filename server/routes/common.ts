@@ -31,6 +31,11 @@ export default function (services: NodeServices, router: IRouter) {
           schema.object({
             endpoint: schema.string(),
             data: schema.nullable(schema.any()),
+            remoteInfo: schema.object({
+              host: schema.string(),
+              username: schema.nullable(schema.string()),
+              password: schema.nullable(schema.string()),
+            }),
           })
         ),
         query: schema.any(),

@@ -14,7 +14,7 @@ import { filterOverlaps } from "../../utils/helper";
 import { filterByMinimatch } from "../../../../../utils/helper";
 import { SYSTEM_ALIAS, SYSTEM_INDEX } from "../../../../../utils/constants";
 
-interface IndexSelectProps extends Pick<_EuiComboBoxProps<IndexSelectItem>, "data-test-subj" | "placeholder"> {
+export interface IndexSelectProps extends Partial<_EuiComboBoxProps<IndexSelectItem>> {
   getIndexOptions: (searchValue: string, excludeDataStreamIndex?: boolean) => Promise<EuiComboBoxOptionOption<IndexSelectItem>[]>;
   onSelectedOptions: (options: EuiComboBoxOptionOption<IndexSelectItem>[]) => void;
   singleSelect: boolean;
@@ -25,12 +25,21 @@ interface IndexSelectProps extends Pick<_EuiComboBoxProps<IndexSelectItem>, "dat
 }
 
 export default function IndexSelect(props: IndexSelectProps) {
+  const {
+    getIndexOptions,
+    onSelectedOptions,
+    singleSelect,
+    excludeDataStreamIndex,
+    excludeList,
+    excludeSystemIndex,
+    selectedOption,
+    ...others
+  } = props;
   const [indexOptions, setIndexOptions] = useState([] as EuiComboBoxOptionOption<IndexSelectItem>[]);
   const coreServices = useContext(CoreServicesContext) as CoreStart;
 
   const searchIndex = (searchValue?: string) => {
-    props
-      .getIndexOptions(searchValue ? searchValue : "", props.excludeDataStreamIndex)
+    getIndexOptions(searchValue ? searchValue : "", excludeDataStreamIndex)
       .then((options) => {
         props.excludeSystemIndex && filterSystemIndices(options);
         setIndexOptions(filterOverlaps(options, props.excludeList));
@@ -42,7 +51,7 @@ export default function IndexSelect(props: IndexSelectProps) {
 
   useEffect(() => {
     searchIndex();
-  }, [props.getIndexOptions, props.excludeList, props.excludeDataStreamIndex, props.excludeSystemIndex]);
+  }, [getIndexOptions, excludeList, excludeDataStreamIndex, excludeSystemIndex]);
 
   const onSearchChange = (searchValue: string) => {
     searchIndex(searchValue);
@@ -58,15 +67,14 @@ export default function IndexSelect(props: IndexSelectProps) {
   return (
     <div>
       <ComboBoxWithoutWarning
-        data-test-subj={props["data-test-subj"]}
-        placeholder={props.placeholder}
         options={indexOptions}
         async
-        selectedOptions={props.selectedOption}
-        onChange={props.onSelectedOptions}
+        selectedOptions={selectedOption}
+        onChange={onSelectedOptions}
         onSearchChange={onSearchChange}
         isClearable={true}
-        singleSelection={props.singleSelect ? { asPlainText: true } : false}
+        singleSelection={singleSelect ? { asPlainText: true } : false}
+        {...others}
       />
     </div>
   );

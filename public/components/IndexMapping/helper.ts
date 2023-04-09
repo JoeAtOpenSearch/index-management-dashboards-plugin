@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import Ajv from "ajv";
-import { noAdditionalJSONSchema } from "../../utils/JSON_schemas/index_mappings";
 import { DiffableMappingsPropertiesObject, MappingsProperties, MappingsPropertiesObject } from "../../../models/interfaces";
+import { noAdditionalJSONSchema } from "../../utils/JSON_schemas/index_mappings";
 
 export const transformObjectToArray = (obj: MappingsPropertiesObject): MappingsProperties => {
   return Object.entries(obj).map(([fieldName, fieldSettings]) => {

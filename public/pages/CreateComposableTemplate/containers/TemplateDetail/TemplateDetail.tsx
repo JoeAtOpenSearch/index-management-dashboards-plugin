@@ -157,7 +157,7 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<IComponentTemplateD
                       Component templates are reusable building blocks for composing index or data stream templates. You can define
                       component templates with common index configurations and associate them to an index template.{" "}
                       <EuiLink external target="_blank" href={coreServices.docLinks.links.opensearch.indexTemplates.composable}>
-                        Learn more.
+                        Learn more
                       </EuiLink>
                     </div>
                   }
@@ -179,6 +179,9 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<IComponentTemplateD
                     );
                     const { includes, ...others } = showValue;
                     Modal.show({
+                      locale: {
+                        ok: "Close",
+                      },
                       "data-test-subj": "templateJSONDetailModal",
                       title: values.name,
                       content: <JSONEditor value={JSON.stringify(others, null, 2)} disabled />,
@@ -248,12 +251,6 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<IComponentTemplateD
                 coreServices.notifications.toasts.addDanger(result.error);
               }
             }
-          }}
-          cancelButtonprops={{
-            children: "Cancel",
-          }}
-          confirmButtonProps={{
-            children: "Save",
           }}
         />
       ) : null}

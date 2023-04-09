@@ -16,6 +16,7 @@ import {
   EuiIcon,
   EuiLink,
   EuiPanel,
+  EuiSearchBar,
   EuiSelectable,
   EuiSpacer,
   EuiText,
@@ -35,6 +36,7 @@ import ComponentTemplateBadge from "../../../../components/ComponentTemplateBadg
 import ComponentTemplateDetail, { IComponentTemplateDetailInstance } from "../../../CreateComposableTemplate/containers/TemplateDetail";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { CoreStart } from "opensearch-dashboards/public";
+import FilterGroup from "../../components/FilterGroup";
 
 export default function ComposableTemplate(props: SubDetailProps) {
   const { field, readonly, history } = props;
@@ -91,7 +93,7 @@ export default function ComposableTemplate(props: SubDetailProps) {
             fullWidth
             label={
               <EuiTitle size="s">
-                <div>Composable template</div>
+                <div>Component template</div>
               </EuiTitle>
             }
             helpText={
@@ -198,7 +200,7 @@ export default function ComposableTemplate(props: SubDetailProps) {
         type="confirm"
         visible={dialogVisible}
         locale={{
-          confirm: `Associate(${selectedComposableTemplates.length})`,
+          confirm: `Associate (${selectedComposableTemplates.length})`,
         }}
         footer={["cancel", "confirm"]}
         style={{
@@ -223,7 +225,7 @@ export default function ComposableTemplate(props: SubDetailProps) {
               setSelectedComposableTemplates(val.filter((item) => item.checked === "on" && !item.disabled).map((item) => item.label));
             }}
             searchProps={{
-              placeholder: "Search components",
+              placeholder: "Search",
             }}
             listProps={{
               rowHeight: 40,
@@ -245,11 +247,13 @@ export default function ComposableTemplate(props: SubDetailProps) {
               <>
                 <EuiFlexGroup>
                   <EuiFlexItem>{search}</EuiFlexItem>
-                  <EuiFlexItem style={{ flexBasis: "240px" }} grow={false}>
-                    <EuiComboBox
-                      placeholder="Types"
-                      onChange={(val) => setSelectedTypes(val.map((item) => item.label))}
-                      selectedOptions={selectedTypes.map((item) => ({ label: item }))}
+                  <EuiFlexItem style={{ flexBasis: "100px" }} grow={false}>
+                    <FilterGroup
+                      filterButtonProps={{
+                        children: "Types",
+                      }}
+                      onChange={(val) => setSelectedTypes(val || [])}
+                      value={selectedTypes}
                       options={[
                         {
                           label: IndicesUpdateMode.alias,

@@ -39,7 +39,6 @@ exports[`<CreateIndexTemplate /> spec render template pages 1`] = `
         </button>
         <button
           class="euiButton euiButton--danger"
-          style="margin-right: 20px;"
           type="button"
         >
           <span
@@ -452,7 +451,7 @@ exports[`<CreateIndexTemplate /> spec render template pages 1`] = `
                           rel="noopener noreferrer"
                           target="_blank"
                         >
-                          Learn more.
+                          Learn more
                           EuiIconMock
                           <span
                             class="euiScreenReaderOnly"
@@ -617,7 +616,7 @@ exports[`<CreateIndexTemplate /> spec render template pages 1`] = `
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  Learn more.
+                  Learn more
                   EuiIconMock
                   <span
                     class="euiScreenReaderOnly"

@@ -194,7 +194,7 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<FieldInstance>) => 
                 <div>
                   Index templates let you initialize new indexes with predefined mappings and settings.{" "}
                   <EuiLink external target="_blank" href={coreServices.docLinks.links.opensearch.indexTemplates.base}>
-                    Learn more.
+                    Learn more
                   </EuiLink>
                 </div>
               }
@@ -213,6 +213,9 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<FieldInstance>) => 
                   template: IndexForm.transformIndexDetailToRemote(values.template),
                 };
                 Modal.show({
+                  locale: {
+                    ok: "Close",
+                  },
                   "data-test-subj": "templateJSONDetailModal",
                   title: values.name,
                   content: <JSONEditor value={JSON.stringify(showValue, null, 2)} disabled />,
@@ -221,7 +224,7 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<FieldInstance>) => 
             >
               View JSON
             </EuiButton>
-            <EuiButton color="danger" style={{ marginRight: 20 }} onClick={() => setVisible(true)}>
+            <EuiButton color="danger" onClick={() => setVisible(true)}>
               Delete
             </EuiButton>
             <DeleteTemplateModal
@@ -292,6 +295,13 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<FieldInstance>) => 
       </ContentPanel>
       {previewFlyoutVisible && simulateField.getValues() ? (
         <Modal.SimpleModal
+          style={{
+            width: 800,
+          }}
+          locale={{
+            ok: "Close",
+          }}
+          maxWidth={false}
           onClose={() => setPreviewFlyoutVisible(false)}
           title="Preview template"
           content={<PreviewTemplate value={simulateField.getValues()} history={props.history} />}
@@ -365,12 +375,6 @@ const TemplateDetail = (props: TemplateDetailProps, ref: Ref<FieldInstance>) => 
                 {renderConfirm()}
               </>
             );
-          }}
-          confirmButtonProps={{
-            children: "Save",
-          }}
-          cancelButtonprops={{
-            children: "Cancel",
           }}
         />
       ) : null}

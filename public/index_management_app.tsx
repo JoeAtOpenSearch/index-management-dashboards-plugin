@@ -22,9 +22,11 @@ import { DarkModeContext } from "./components/DarkMode";
 import Main from "./pages/Main";
 import { CoreServicesContext } from "./components/core_services";
 import "./app.scss";
+import { ManagementAppMountParams } from "src/plugins/management/public";
 
-export function renderApp(coreStart: CoreStart, params: AppMountParameters, landingPage: string) {
+export function renderApp(coreStart: CoreStart, params: ManagementAppMountParams | AppMountParameters, landingPage: string) {
   const http = coreStart.http;
+  const chrome = coreStart.chrome;
 
   const indexService = new IndexService(http);
   const managedIndexService = new ManagedIndexService(http);
@@ -54,7 +56,7 @@ export function renderApp(coreStart: CoreStart, params: AppMountParameters, land
           <DarkModeContext.Provider value={isDarkMode}>
             <ServicesContext.Provider value={services}>
               <CoreServicesContext.Provider value={coreStart}>
-                <Main {...props} landingPage={landingPage} />
+                <Main {...props} landingPage={landingPage} hiddenNav={true} />
               </CoreServicesContext.Provider>
             </ServicesContext.Provider>
           </DarkModeContext.Provider>
@@ -63,5 +65,9 @@ export function renderApp(coreStart: CoreStart, params: AppMountParameters, land
     </Router>,
     params.element
   );
-  return () => ReactDOM.unmountComponentAtNode(params.element);
+  // return () => ReactDOM.unmountComponentAtNode(params.element);
+  return () => {
+    chrome.docTitle.reset();
+    ReactDOM.unmountComponentAtNode(params.element);
+  };
 }

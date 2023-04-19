@@ -48,7 +48,7 @@ import ForceMerge from "../ForceMerge";
 import ComposableTemplates from "../ComposableTemplates";
 import CreateComposableTemplate from "../CreateComposableTemplate";
 
-enum Navigation {
+export enum Navigation {
   IndexManagement = "Index Management",
   IndexPolicies = "State management policies",
   ManagedIndices = "Policy managed indices",
@@ -77,7 +77,7 @@ enum Pathname {
   Repositories = "/repositories",
 }
 
-const HIDDEN_NAV_ROUTES = [
+const HIDDEN_NAV_ROUTES: string[] = [
   ROUTES.CREATE_ROLLUP,
   ROUTES.EDIT_ROLLUP,
   ROUTES.ROLLUP_DETAILS,
@@ -111,11 +111,13 @@ const HIDDEN_NAV_STARTS_WITH_ROUTE = [
 
 interface MainProps extends RouteComponentProps {
   landingPage: string;
+  hiddenNav: Boolean;
 }
 
 export default class Main extends Component<MainProps, object> {
   render() {
     const {
+      hiddenNav,
       location: { pathname },
     } = this.props;
     const sideNav = [
@@ -211,7 +213,8 @@ export default class Main extends Component<MainProps, object> {
 
     const { landingPage } = this.props;
 
-    const ROUTE_STYLE = { padding: "25px 25px" };
+    // const ROUTE_STYLE = { padding: "25px 25px" };
+    const ROUTE_STYLE = { padding: "0px   0px" };
 
     return (
       <CoreServicesConsumer>
@@ -224,7 +227,9 @@ export default class Main extends Component<MainProps, object> {
                     <ModalRoot services={services} />
                     <EuiPage restrictWidth="100%">
                       {/*Hide side navigation bar when creating or editing rollup job*/}
-                      {!HIDDEN_NAV_ROUTES.includes(pathname) && !HIDDEN_NAV_STARTS_WITH_ROUTE.some((item) => pathname.startsWith(item)) ? (
+                      {!hiddenNav &&
+                      !HIDDEN_NAV_ROUTES.includes(pathname) &&
+                      !HIDDEN_NAV_STARTS_WITH_ROUTE.some((item) => pathname.startsWith(item)) ? (
                         <EuiPageSideBar style={{ minWidth: 200 }}>
                           <EuiSideNav style={{ width: 200 }} items={sideNav} />
                         </EuiPageSideBar>

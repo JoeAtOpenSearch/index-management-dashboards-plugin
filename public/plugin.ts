@@ -39,11 +39,28 @@ export class IndexManagementPlugin implements Plugin<IndexManagementPluginSetup,
       },
       mount: async (params: AppMountParameters) => {
         const { renderApp } = await import("./index_management_app");
-        const [coreStart, depsStart] = await core.getStartServices();
+        const [coreStart] = await core.getStartServices();
         return renderApp(coreStart, params, ROUTES.INDEX_POLICIES);
       },
     });
 
+    core.application.register({
+      id: "opensearch_snapshot_management_dashboards",
+      title: "Snapshot Management",
+      order: 7000,
+      category: {
+        id: "opensearch",
+        label: "OpenSearch Plugins",
+        order: 2000,
+      },
+      mount: async (params: AppMountParameters) => {
+        const { renderApp } = await import("./index_management_app");
+        const [coreStart] = await core.getStartServices();
+        return renderApp(coreStart, params, ROUTES.SNAPSHOT_POLICIES);
+      },
+    });
+
+    // register with management app
     const indexManagementSection = management.sections.section.indexManagement;
     const snapshotManagementSection = management.sections.section.snapshotManagement;
 
@@ -78,10 +95,10 @@ export class IndexManagementPlugin implements Plugin<IndexManagementPluginSetup,
         title: item.title,
         order: item.order,
         mount: async (params) => {
-          const { renderApp } = await import("./index_management_app");
+          const { renderManagementApp } = await import("./index_management_app");
           const [coreStart] = await core.getStartServices();
 
-          return renderApp(coreStart, params, item.landingPage);
+          return renderManagementApp(coreStart, params, item.landingPage);
         },
       });
     });
@@ -92,30 +109,13 @@ export class IndexManagementPlugin implements Plugin<IndexManagementPluginSetup,
         title: item.title,
         order: item.order,
         mount: async (params) => {
-          const { renderApp } = await import("./index_management_app");
+          const { renderManagementApp } = await import("./index_management_app");
           const [coreStart] = await core.getStartServices();
 
-          return renderApp(coreStart, params, item.landingPage);
+          return renderManagementApp(coreStart, params, item.landingPage);
         },
       });
     });
-
-    // core.application.register({
-    //   id: "opensearch_snapshot_management_dashboards",
-    //   title: "Snapshot Management",
-    //   order: 9060,
-    //   category: DEFAULT_APP_CATEGORIES.management,
-    //   // category: {
-    //   //   id: "opensearch",
-    //   //   label: "OpenSearch Plugins",
-    //   //   order: 2000,
-    //   // },
-    //   mount: async (params: AppMountParameters) => {
-    //     const { renderApp } = await import("./index_management_app");
-    //     const [coreStart, depsStart] = await core.getStartServices();
-    //     return renderApp(coreStart, {element: params.element} as ManagementAppMountParams, ROUTES.SNAPSHOT_POLICIES);
-    //   },
-    // });
 
     return {
       registerAction: (actionType, uiActionCtor, defaultAction) => {

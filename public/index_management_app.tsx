@@ -24,7 +24,15 @@ import { CoreServicesContext } from "./components/core_services";
 import "./app.scss";
 import { ManagementAppMountParams } from "src/plugins/management/public";
 
-export function renderApp(coreStart: CoreStart, params: ManagementAppMountParams | AppMountParameters, landingPage: string) {
+export function renderApp(coreStart: CoreStart, params: AppMountParameters, landingPage: string) {
+  return _render(coreStart, params, landingPage, false);
+}
+
+export function renderManagementApp(coreStart: CoreStart, params: ManagementAppMountParams, landingPage: string) {
+  return _render(coreStart, params, landingPage, true);
+}
+
+function _render(coreStart: CoreStart, params: ManagementAppMountParams | AppMountParameters, landingPage: string, managementApp: boolean) {
   const http = coreStart.http;
   const chrome = coreStart.chrome;
 
@@ -56,7 +64,7 @@ export function renderApp(coreStart: CoreStart, params: ManagementAppMountParams
           <DarkModeContext.Provider value={isDarkMode}>
             <ServicesContext.Provider value={services}>
               <CoreServicesContext.Provider value={coreStart}>
-                <Main {...props} landingPage={landingPage} hiddenNav={true} />
+                <Main {...props} landingPage={landingPage} hiddenNav={managementApp} />
               </CoreServicesContext.Provider>
             </ServicesContext.Provider>
           </DarkModeContext.Provider>

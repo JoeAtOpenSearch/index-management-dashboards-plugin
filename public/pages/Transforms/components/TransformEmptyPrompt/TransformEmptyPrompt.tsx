@@ -5,12 +5,12 @@
 
 import React from "react";
 import { EuiButton, EuiEmptyPrompt, EuiText } from "@elastic/eui";
-import { PLUGIN_NAME, ROUTES } from "../../../../utils/constants";
 
 interface TransformEmptyPromptProps {
   filterIsApplied: boolean;
   loading: boolean;
   resetFilters: () => void;
+  createTransform: () => void;
 }
 
 export const TEXT = {
@@ -25,7 +25,7 @@ const getMessagePrompt = ({ filterIsApplied, loading }: TransformEmptyPromptProp
   return TEXT.NO_TRANSFORMS;
 };
 
-const getActions: React.SFC<TransformEmptyPromptProps> = ({ filterIsApplied, loading, resetFilters }) => {
+const getActions: React.SFC<TransformEmptyPromptProps> = ({ filterIsApplied, loading, resetFilters, createTransform }) => {
   if (loading) {
     return null;
   }
@@ -39,7 +39,7 @@ const getActions: React.SFC<TransformEmptyPromptProps> = ({ filterIsApplied, loa
   }
 
   return (
-    <EuiButton href={`${PLUGIN_NAME}#${ROUTES.CREATE_TRANSFORM}`} data-test-subj="emptyPromptCreateTransformButton">
+    <EuiButton onClick={createTransform} data-test-subj="emptyPromptCreateTransformButton">
       Create transform
     </EuiButton>
   );

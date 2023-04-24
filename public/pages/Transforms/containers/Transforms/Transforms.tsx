@@ -314,7 +314,12 @@ export default class Transforms extends Component<TransformProps, TransformState
             itemId="_id"
             items={transforms}
             noItemsMessage={
-              <TransformEmptyPrompt filterIsApplied={filterIsApplied} loading={fetchingTransforms} resetFilters={this.resetFilters} />
+              <TransformEmptyPrompt
+                filterIsApplied={filterIsApplied}
+                loading={fetchingTransforms}
+                resetFilters={this.resetFilters}
+                createTransform={this.onClickCreate}
+              />
             }
             onChange={this.onTableChange}
             pagination={pagination}

@@ -333,6 +333,10 @@ export default class ManagedIndices extends Component<ManagedIndicesProps, Manag
     this.setState({ search: DEFAULT_QUERY_PARAMS.search, query: Query.parse(DEFAULT_QUERY_PARAMS.search) });
   };
 
+  changePolicy = (): void => {
+    this.props.history.push(ROUTES.CHANGE_POLICY);
+  };
+
   render() {
     const {
       totalManagedIndices,
@@ -431,7 +435,7 @@ export default class ManagedIndices extends Component<ManagedIndicesProps, Manag
             </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton href={`${PLUGIN_NAME}#/change-policy`} data-test-subj="changePolicyButton">
+            <EuiButton onClick={this.changePolicy} data-test-subj="changePolicyButton">
               Change policy
             </EuiButton>
           </EuiFlexItem>

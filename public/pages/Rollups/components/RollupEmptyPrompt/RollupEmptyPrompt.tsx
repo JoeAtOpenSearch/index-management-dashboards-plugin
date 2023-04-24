@@ -5,7 +5,6 @@
 
 import React from "react";
 import { EuiButton, EuiEmptyPrompt, EuiText } from "@elastic/eui";
-import { PLUGIN_NAME, ROUTES } from "../../../../utils/constants";
 
 export const TEXT = {
   RESET_FILTERS: "There are no rollup jobs matching your applied filters. Reset your filters to view your rollup jobs.",
@@ -20,7 +19,7 @@ const getMessagePrompt = ({ filterIsApplied, loading }: RollupEmptyPromptProps) 
   return TEXT.NO_ROLLUPS;
 };
 
-const getActions: React.SFC<RollupEmptyPromptProps> = ({ filterIsApplied, loading, resetFilters }) => {
+const getActions: React.SFC<RollupEmptyPromptProps> = ({ filterIsApplied, loading, resetFilters, createRollup }) => {
   if (loading) {
     return null;
   }
@@ -33,7 +32,7 @@ const getActions: React.SFC<RollupEmptyPromptProps> = ({ filterIsApplied, loadin
   }
 
   return (
-    <EuiButton href={`${PLUGIN_NAME}#${ROUTES.CREATE_ROLLUP}`} data-test-subj="emptyPromptCreateRollupButton">
+    <EuiButton onClick={createRollup} data-test-subj="emptyPromptCreateRollupButton">
       Create rollup
     </EuiButton>
   );
@@ -43,6 +42,7 @@ interface RollupEmptyPromptProps {
   filterIsApplied: boolean;
   loading: boolean;
   resetFilters: () => void;
+  createRollup: () => void;
 }
 
 const RollupEmptyPrompt: React.SFC<RollupEmptyPromptProps> = (props) => (

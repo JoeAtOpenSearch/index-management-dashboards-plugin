@@ -460,7 +460,12 @@ export default class Rollups extends Component<RollupsProps, RollupsState> {
             itemId="_id"
             items={rollups}
             noItemsMessage={
-              <RollupEmptyPrompt filterIsApplied={filterIsApplied} loading={loadingRollups} resetFilters={this.resetFilters} />
+              <RollupEmptyPrompt
+                filterIsApplied={filterIsApplied}
+                loading={loadingRollups}
+                resetFilters={this.resetFilters}
+                createRollup={this.onClickCreate}
+              />
             }
             onChange={this.onTableChange}
             pagination={pagination}

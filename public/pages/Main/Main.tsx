@@ -17,7 +17,7 @@ import ChangePolicy from "../ChangePolicy";
 import PolicyDetails from "../PolicyDetails/containers/PolicyDetails";
 import Rollups from "../Rollups";
 import { ModalProvider, ModalRoot } from "../../components/Modal";
-import { ServicesConsumer } from "../../services";
+import { ServicesConsumer, ServicesContext } from "../../services";
 import { BrowserServices } from "../../models/interfaces";
 import { ROUTES } from "../../utils/constants";
 import { CoreServicesConsumer } from "../../components/core_services";
@@ -107,6 +107,96 @@ const HIDDEN_NAV_STARTS_WITH_ROUTE = [
   ROUTES.CREATE_DATA_STREAM,
   ROUTES.FORCE_MERGE,
   ROUTES.CREATE_COMPOSABLE_TEMPLATE,
+];
+
+const ROUTE_STYLE = { padding: "0px" };
+
+export const indexManagementItems = [
+  {
+    id: "indexPolicies",
+    title: Navigation.IndexPolicies,
+    order: 0,
+    landingPage: ROUTES.INDEX_POLICIES,
+    hashRoutes: [
+      {
+        path: Pathname.IndexPolicies,
+        render: (props: RouteComponentProps) => (
+          <ServicesConsumer>
+            {(services: BrowserServices | null) =>
+              services && (
+                <div style={ROUTE_STYLE}>
+                  <Policies {...props} policyService={services.policyService} />
+                </div>
+              )
+            }
+          </ServicesConsumer>
+        ),
+      },
+    ],
+  },
+  {
+    id: "indices",
+    title: Navigation.Indices,
+    order: 20,
+    landingPage: ROUTES.INDICES,
+    hashRoutes: [
+      {
+        path: Pathname.Indices,
+        render: (props: RouteComponentProps) => (
+          <ServicesConsumer>
+            {(services: BrowserServices | null) =>
+              services && (
+                <div style={ROUTE_STYLE}>
+                  <Indices {...props} indexService={services.indexService} commonService={services.commonService} />
+                </div>
+              )
+            }
+          </ServicesConsumer>
+        ),
+      },
+      {
+        path: `${ROUTES.INDEX_DETAIL}/:index`,
+        render: (props: RouteComponentProps) => (
+          <ServicesConsumer>
+            {(services: BrowserServices | null) =>
+              services && (
+                <div style={ROUTE_STYLE}>
+                  <CreateIndex {...props} commonService={services.commonService} />
+                </div>
+              )
+            }
+          </ServicesConsumer>
+        ),
+      },
+    ],
+  },
+  {
+    id: "aliases",
+    title: Navigation.Aliases,
+    order: 30,
+    landingPage: ROUTES.ALIASES,
+    hashRoutes: [
+      {
+        path: ROUTES.ALIASES,
+        render: (props: RouteComponentProps) => (
+          <ServicesConsumer>
+            {(services: BrowserServices | null) =>
+              services && (
+                <div style={ROUTE_STYLE}>
+                  <Aliases {...props} />
+                </div>
+              )
+            }
+          </ServicesConsumer>
+        ),
+      },
+    ],
+  },
+  // { id: "templates", title: Navigation.Templates, order: 40, landingPage: ROUTES.TEMPLATES },
+  // { id: "dataStreams", title: Navigation.DataStreams, order: 50, landingPage: ROUTES.DATA_STREAMS },
+  // { id: "composableTemplates", title: Navigation.ComposableTemplates, order: 60, landingPage: ROUTES.COMPOSABLE_TEMPLATES },
+  // { id: "rollups", title: Navigation.Rollups, order: 70, landingPage: ROUTES.ROLLUPS },
+  // { id: "transforms", title: Navigation.Transforms, order: 80, landingPage: ROUTES.TRANSFORMS },
 ];
 
 interface MainProps extends RouteComponentProps {
@@ -211,8 +301,6 @@ export default class Main extends Component<MainProps, object> {
 
     const { landingPage } = this.props;
 
-    const ROUTE_STYLE = { padding: "0px" };
-
     return (
       <CoreServicesConsumer>
         {(core: CoreStart | null) =>
@@ -223,7 +311,7 @@ export default class Main extends Component<MainProps, object> {
                   <ModalProvider>
                     <ModalRoot services={services} />
                     <Switch>
-                      <Route
+                      {/* <Route
                         path={ROUTES.SNAPSHOTS}
                         render={(props: RouteComponentProps) => (
                           <div style={ROUTE_STYLE}>
@@ -609,7 +697,11 @@ export default class Main extends Component<MainProps, object> {
                             <ForceMerge {...props} />
                           </div>
                         )}
-                      />
+                      /> */}
+                      {indexManagementItems.reduce(
+                        (total, current) => [...total, ...current.hashRoutes.map((route) => <Route {...route} key={route.path} />)],
+                        [] as React.ReactChild[]
+                      )}
                       <Redirect from="/" to={landingPage} />
                     </Switch>
                   </ModalProvider>

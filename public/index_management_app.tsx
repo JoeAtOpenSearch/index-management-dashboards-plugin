@@ -6,7 +6,7 @@
 import { CoreStart } from "opensearch-dashboards/public";
 import React from "react";
 import ReactDOM from "react-dom";
-import { HashRouter as Router, Route } from "react-router-dom";
+import { HashRouter as Router, Route, matchPath } from "react-router-dom";
 import {
   IndexService,
   ManagedIndexService,
@@ -21,8 +21,9 @@ import {
 import { DarkModeContext } from "./components/DarkMode";
 import Main from "./pages/Main";
 import { CoreServicesContext } from "./components/core_services";
-import "./app.scss";
 import { ManagementAppMountParams } from "src/plugins/management/public";
+import { indexManagementItems } from "./pages/Main/Main";
+import "./app.scss";
 
 export function renderManagementApp(
   coreStart: CoreStart,
@@ -54,7 +55,22 @@ export function renderManagementApp(
 
   const isDarkMode = coreStart.uiSettings.get("theme:darkMode") || false;
 
-  const coreStartAsScope = { ...coreStart, chrome: { ...coreStart.chrome, setBreadcrumbs: params.setBreadcrumbs } };
+  const coreStartAsScope = { ...coreStart, chrome: { ...coreStart.chrome } };
+  const handler = ({ newURL, oldURL }: HashChangeEvent) => {
+    const previousUrlObject = new URL(oldURL);
+    const currentUrlObject = new URL(newURL);
+    const previousApp = indexManagementItems.find((item) =>
+      item.hashRoutes.some((hashRoute) => matchPath(previousUrlObject.hash.replace(/^#?/, "").replace(/\?.*$/, ""), hashRoute))
+    );
+    const currentApp = indexManagementItems.find((item) =>
+      item.hashRoutes.some((hashRoute) => matchPath(currentUrlObject.hash.replace(/^#?/, "").replace(/\?.*$/, ""), hashRoute))
+    );
+    if (previousApp && currentApp && previousApp.id !== currentApp.id) {
+      params.history.replace(`../${currentApp.id}`);
+    }
+  };
+
+  window.addEventListener("hashchange", handler);
 
   ReactDOM.render(
     // <Router history={params.history}>
@@ -77,5 +93,6 @@ export function renderManagementApp(
   return () => {
     chrome.docTitle.reset();
     ReactDOM.unmountComponentAtNode(params.element);
+    window.removeEventListener("hashchange", handler);
   };
 }

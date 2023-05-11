@@ -19,15 +19,18 @@ import OpenIndexModal from "../../components/OpenIndexModal";
 import FlushIndexModal from "../../../../containers/FlushIndexModal";
 import ClearCacheModal from "../../../../containers/ClearCacheModal";
 import { getErrorMessage } from "../../../../utils/helpers";
-import { ROUTES, SOURCE_PAGE_TYPE } from "../../../../utils/constants";
+import { ROUTES, SOURCE_PAGE_TYPE, INDEX_OP_TARGET_TYPE } from "../../../../utils/constants";
 import { RouteComponentProps } from "react-router-dom";
 import { openIndices } from "../../utils/helpers";
+import RefreshActionModal from "../../../../containers/RefreshAction";
 
 export interface IndicesActionsProps extends Pick<RouteComponentProps, "history"> {
   selectedItems: ManagedCatIndex[];
   onDelete: () => void;
   onClose: () => void;
   onShrink: () => void;
+  onRefresh: () => void;
+  getIndices: () => Promise<void>;
 }
 
 export default function IndicesActions(props: IndicesActionsProps) {
@@ -37,6 +40,7 @@ export default function IndicesActions(props: IndicesActionsProps) {
   const [clearCacheModalVisible, setClearCacheModalVisible] = useState(false);
   const [openIndexModalVisible, setOpenIndexModalVisible] = useState(false);
   const [flushIndexModalVisible, setFlushIndexModalVisible] = useState(false);
+  const [refreshModalVisible, setRefreshModalVisible] = useState(false);
   const coreServices = useContext(CoreServicesContext) as CoreStart;
   const services = useContext(ServicesContext) as BrowserServices;
 
@@ -116,6 +120,10 @@ export default function IndicesActions(props: IndicesActionsProps) {
 
   const onFlushIndexModalClose = () => {
     setFlushIndexModalVisible(false);
+  };
+
+  const onRefreshModalClose = () => {
+    setRefreshModalVisible(false);
   };
 
   const renderKey = useMemo(() => Date.now(), [selectedItems]);
@@ -223,6 +231,15 @@ export default function IndicesActions(props: IndicesActionsProps) {
                       isSeparator: true,
                     },
                     {
+                      name: "Refresh",
+                      "data-test-subj": "Refresh Index Action",
+                      onClick: () => setRefreshModalVisible(true),
+                    },
+
+                    {
+                      isSeparator: true,
+                    },
+                    {
                       name: "Delete",
                       disabled: !selectedItems.length,
                       "data-test-subj": "deleteAction",
@@ -268,6 +285,13 @@ export default function IndicesActions(props: IndicesActionsProps) {
         visible={clearCacheModalVisible}
         onClose={onClearCacheModalClose}
         type={SOURCE_PAGE_TYPE.INDEXES}
+      />
+
+      <RefreshActionModal
+        selectedItems={selectedItems}
+        visible={refreshModalVisible}
+        onClose={onRefreshModalClose}
+        type={INDEX_OP_TARGET_TYPE.INDEX}
       />
     </>
   );

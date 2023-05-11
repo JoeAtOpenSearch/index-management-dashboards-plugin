@@ -10,7 +10,8 @@ import DeleteIndexModal from "../DeleteAliasModal";
 import FlushIndexModal from "../../../../containers/FlushIndexModal";
 import ClearCacheModal from "../../../../containers/ClearCacheModal";
 import { IAlias } from "../../interface";
-import { ROUTES, SOURCE_PAGE_TYPE } from "../../../../utils/constants";
+import { ROUTES, SOURCE_PAGE_TYPE, INDEX_OP_TARGET_TYPE } from "../../../../utils/constants";
+import RefreshActionModal from "../../../../containers/RefreshAction";
 
 export interface AliasesActionsProps {
   selectedItems: IAlias[];
@@ -24,6 +25,7 @@ export default function AliasesActions(props: AliasesActionsProps) {
   const [deleteIndexModalVisible, setDeleteIndexModalVisible] = useState(false);
   const [flushAliasModalVisible, setFlushAliasModalVisible] = useState(false);
   const [clearCacheModalVisible, setClearCacheModalVisible] = useState(false);
+  const [refreshModalVisible, setRefreshModalVisible] = useState(false);
 
   const onDeleteIndexModalClose = () => {
     setDeleteIndexModalVisible(false);
@@ -34,6 +36,9 @@ export default function AliasesActions(props: AliasesActionsProps) {
   };
   const onClearCacheModalClose = () => {
     setClearCacheModalVisible(false);
+  };
+  const onRefreshModalClose = () => {
+    setRefreshModalVisible(false);
   };
 
   const renderKey = useMemo(() => Date.now(), [selectedItems]);
@@ -76,6 +81,12 @@ export default function AliasesActions(props: AliasesActionsProps) {
                   onClick: () => {
                     props.history.push(`${ROUTES.FORCE_MERGE}/${selectedItems.map((item) => item.alias).join(",")}`);
                   },
+                },
+                {
+                  name: "Refresh",
+                  disabled: !selectedItems.length,
+                  "data-test-subj": "refreshAction",
+                  onClick: () => setRefreshModalVisible(true),
                 },
                 {
                   name: "Roll over",
@@ -122,6 +133,13 @@ export default function AliasesActions(props: AliasesActionsProps) {
         visible={clearCacheModalVisible}
         onClose={onClearCacheModalClose}
         type={SOURCE_PAGE_TYPE.ALIASES}
+      />
+
+      <RefreshActionModal
+        selectedItems={selectedItems}
+        visible={refreshModalVisible}
+        onClose={onRefreshModalClose}
+        type={INDEX_OP_TARGET_TYPE.ALIAS}
       />
     </>
   );

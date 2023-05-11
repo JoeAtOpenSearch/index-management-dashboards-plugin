@@ -9,7 +9,8 @@ import SimplePopover from "../../../../components/SimplePopover";
 import FlushIndexModal from "../../../../containers/FlushIndexModal";
 import DeleteIndexModal from "../DeleteDataStreamsModal";
 import ClearCacheModal from "../../../../containers/ClearCacheModal";
-import { ROUTES, SOURCE_PAGE_TYPE } from "../../../../utils/constants";
+import { ROUTES, SOURCE_PAGE_TYPE, INDEX_OP_TARGET_TYPE } from "../../../../utils/constants";
+import RefreshActionModal from "../../../../containers/RefreshAction";
 import { DataStream } from "../../../../../server/models/interfaces";
 
 export interface DataStreamsActionsProps {
@@ -23,6 +24,7 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
   const [deleteIndexModalVisible, setDeleteIndexModalVisible] = useState(false);
   const [flushDataStreamModalVisible, setFlushDataStreamModalVisible] = useState(false);
   const [clearCacheModalVisible, setClearCacheModalVisible] = useState(false);
+  const [refreshModalVisible, setRefreshModalVisible] = useState(false);
 
   const onDeleteIndexModalClose = () => {
     setDeleteIndexModalVisible(false);
@@ -33,6 +35,9 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
   };
   const onClearCacheModalClose = () => {
     setClearCacheModalVisible(false);
+  };
+  const onRefreshModalClose = () => {
+    setRefreshModalVisible(false);
   };
 
   const renderKey = useMemo(() => Date.now(), [selectedItems]);
@@ -70,6 +75,12 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
                   onClick: () => {
                     props.history.push(`${ROUTES.FORCE_MERGE}/${selectedItemsInString.join(",")}`);
                   },
+                },
+                {
+                  name: "Refresh",
+                  disabled: !selectedItems.length,
+                  "data-test-subj": "refreshAction",
+                  onClick: () => setRefreshModalVisible(true),
                 },
                 {
                   name: "Roll over",
@@ -116,6 +127,13 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
         visible={clearCacheModalVisible}
         onClose={onClearCacheModalClose}
         type={SOURCE_PAGE_TYPE.DATA_STREAMS}
+      />
+
+      <RefreshActionModal
+        selectedItems={selectedItems}
+        visible={refreshModalVisible}
+        onClose={onRefreshModalClose}
+        type={INDEX_OP_TARGET_TYPE.DATA_STREAM}
       />
     </>
   );

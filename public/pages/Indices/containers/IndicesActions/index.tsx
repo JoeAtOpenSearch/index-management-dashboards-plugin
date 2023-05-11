@@ -17,8 +17,9 @@ import { CoreStart } from "opensearch-dashboards/public";
 import CloseIndexModal from "../../components/CloseIndexModal";
 import OpenIndexModal from "../../components/OpenIndexModal";
 import FlushIndexModal from "../../../../containers/FlushIndexModal";
+import ClearCacheModal from "../../../../containers/ClearCacheModal";
 import { getErrorMessage } from "../../../../utils/helpers";
-import { ROUTES } from "../../../../utils/constants";
+import { ROUTES, SOURCE_PAGE_TYPE } from "../../../../utils/constants";
 import { RouteComponentProps } from "react-router-dom";
 import { openIndices } from "../../utils/helpers";
 
@@ -33,6 +34,7 @@ export default function IndicesActions(props: IndicesActionsProps) {
   const { selectedItems, onDelete, onClose } = props;
   const [deleteIndexModalVisible, setDeleteIndexModalVisible] = useState(false);
   const [closeIndexModalVisible, setCloseIndexModalVisible] = useState(false);
+  const [clearCacheModalVisible, setClearCacheModalVisible] = useState(false);
   const [openIndexModalVisible, setOpenIndexModalVisible] = useState(false);
   const [flushIndexModalVisible, setFlushIndexModalVisible] = useState(false);
   const coreServices = useContext(CoreServicesContext) as CoreStart;
@@ -58,6 +60,10 @@ export default function IndicesActions(props: IndicesActionsProps) {
       coreServices.notifications.toasts.addDanger(result?.error || "");
     }
   }, [selectedItems, services, coreServices, onDelete, onDeleteIndexModalClose]);
+
+  const onClearCacheModalClose = () => {
+    setClearCacheModalVisible(false);
+  };
 
   const onOpenIndexModalClose = () => {
     setOpenIndexModalVisible(false);
@@ -148,6 +154,11 @@ export default function IndicesActions(props: IndicesActionsProps) {
                     },
                     {
                       isSeparator: true,
+                    },
+                    {
+                      name: "Clear cache",
+                      "data-test-subj": "Clear cache Action",
+                      onClick: () => setClearCacheModalVisible(true),
                     },
                     {
                       name: "Close",
@@ -250,6 +261,13 @@ export default function IndicesActions(props: IndicesActionsProps) {
         visible={flushIndexModalVisible}
         onClose={onFlushIndexModalClose}
         flushTarget="indices"
+      />
+
+      <ClearCacheModal
+        selectedItems={selectedItems}
+        visible={clearCacheModalVisible}
+        onClose={onClearCacheModalClose}
+        type={SOURCE_PAGE_TYPE.INDEXES}
       />
     </>
   );

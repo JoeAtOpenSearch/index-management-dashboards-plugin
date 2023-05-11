@@ -143,4 +143,160 @@ describe("<DataStreamsActions /> spec", () => {
     });
     expect(document.body.children).toMatchSnapshot();
   });
+
+  it("clear cache for data streams by calling commonService", async () => {
+    browserServicesMock.commonService.apiCaller = jest.fn(
+      async (payload): Promise<any> => {
+        switch (payload.endpoint) {
+          case "cluster.state":
+            return {
+              ok: true,
+              response: {
+                blocks: {},
+              },
+            };
+          default:
+            return {
+              ok: true,
+              response: {},
+            };
+        }
+      }
+    );
+    const { container, getByTestId, getByText } = renderWithRouter({
+      selectedItems: [
+        {
+          name: "test_data_stream",
+          indices: [
+            {
+              index_name: ".ds-test_data_stream-000001",
+            },
+            {
+              index_name: ".ds-test_data_stream-000002",
+            },
+          ],
+        },
+      ],
+      onDelete: () => {},
+    });
+
+    await waitFor(() => {
+      expect(container.firstChild).toMatchSnapshot();
+    });
+
+    userEvent.click(document.querySelector('[data-test-subj="moreAction"] button') as Element);
+    userEvent.click(getByTestId("ClearCacheAction"));
+    await waitFor(() => {
+      getByText("Caches will be cleared for the following data streams.");
+    });
+    userEvent.click(getByTestId("ClearCacheConfirmButton"));
+
+    await waitFor(() => {
+      expect(browserServicesMock.commonService.apiCaller).toHaveBeenCalledTimes(2);
+      expect(browserServicesMock.commonService.apiCaller).toHaveBeenCalledWith({
+        endpoint: "cluster.state",
+        data: {
+          metric: "blocks",
+        },
+      });
+      expect(browserServicesMock.commonService.apiCaller).toHaveBeenCalledWith({
+        endpoint: "indices.clearCache",
+        data: {
+          index: "test_data_stream",
+        },
+      });
+      expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledTimes(1);
+      expect(coreServicesMock.notifications.toasts.addSuccess).toHaveBeenCalledWith("Clear caches for [test_data_stream] successfully");
+    });
+  });
+
+  it("cannot clear cache for data streams if they are closed or blocked", async () => {
+    browserServicesMock.commonService.apiCaller = jest.fn(
+      async (payload): Promise<any> => {
+        switch (payload.endpoint) {
+          case "cluster.state":
+            return {
+              ok: true,
+              response: {
+                blocks: {
+                  indices: {
+                    ".ds-test_data_stream_1-000001": {
+                      "4": {
+                        description: "index closed",
+                        retryable: false,
+                        levels: ["read", "write"],
+                      },
+                    },
+                    ".ds-test_data_stream_2-000001": {
+                      "5": {
+                        description: "index read-only (api)",
+                        retryable: false,
+                        levels: ["write", "metadata_write"],
+                      },
+                    },
+                  },
+                },
+              },
+            };
+          default:
+            return {
+              ok: true,
+              response: {},
+            };
+        }
+      }
+    );
+    const { container, getByTestId, getByText } = renderWithRouter({
+      selectedItems: [
+        {
+          name: "test_data_stream_1",
+          indices: [
+            {
+              index_name: ".ds-test_data_stream_1-000001",
+              index_uuid: "x",
+            },
+            {
+              index_name: ".ds-test_data_stream_1-000002",
+              index_uuid: "y",
+            },
+          ],
+        },
+        {
+          name: "test_data_stream_2",
+          indices: [
+            {
+              index_name: ".ds-test_data_stream_2-000001",
+              index_uuid: "z",
+            },
+            {
+              index_name: ".ds-test_data_stream_2-000002",
+              index_uuid: "c",
+            },
+          ],
+        },
+      ],
+      onDelete: () => {},
+    });
+
+    await waitFor(() => {
+      expect(container.firstChild).toMatchSnapshot();
+    });
+
+    userEvent.click(document.querySelector('[data-test-subj="moreAction"] button') as Element);
+    userEvent.click(getByTestId("ClearCacheAction"));
+    await waitFor(() => {
+      getByText("Caches will not be cleared for the following data streams because one or more backing indexes are closed or blocked.");
+    });
+
+    await waitFor(() => {
+      expect(browserServicesMock.commonService.apiCaller).toHaveBeenCalledTimes(1);
+      expect(browserServicesMock.commonService.apiCaller).toHaveBeenCalledWith({
+        endpoint: "cluster.state",
+        data: {
+          metric: "blocks",
+        },
+      });
+      expect(getByTestId("ClearCacheConfirmButton")).toBeDisabled();
+    });
+  });
 });

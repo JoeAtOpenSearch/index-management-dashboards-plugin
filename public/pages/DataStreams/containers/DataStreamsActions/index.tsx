@@ -8,7 +8,8 @@ import { EuiButton, EuiContextMenu } from "@elastic/eui";
 import SimplePopover from "../../../../components/SimplePopover";
 import FlushIndexModal from "../../../../containers/FlushIndexModal";
 import DeleteIndexModal from "../DeleteDataStreamsModal";
-import { ROUTES } from "../../../../utils/constants";
+import ClearCacheModal from "../../../../containers/ClearCacheModal";
+import { ROUTES, SOURCE_PAGE_TYPE } from "../../../../utils/constants";
 import { DataStream } from "../../../../../server/models/interfaces";
 
 export interface DataStreamsActionsProps {
@@ -21,6 +22,7 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
   const { selectedItems, onDelete, history } = props;
   const [deleteIndexModalVisible, setDeleteIndexModalVisible] = useState(false);
   const [flushDataStreamModalVisible, setFlushDataStreamModalVisible] = useState(false);
+  const [clearCacheModalVisible, setClearCacheModalVisible] = useState(false);
 
   const onDeleteIndexModalClose = () => {
     setDeleteIndexModalVisible(false);
@@ -28,6 +30,9 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
 
   const onFlushDataStreamModalClose = () => {
     setFlushDataStreamModalVisible(false);
+  };
+  const onClearCacheModalClose = () => {
+    setClearCacheModalVisible(false);
   };
 
   const renderKey = useMemo(() => Date.now(), [selectedItems]);
@@ -53,6 +58,12 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
             {
               id: 0,
               items: [
+                {
+                  name: "Clear cache",
+                  disabled: selectedItems.length < 1,
+                  "data-test-subj": "ClearCacheAction",
+                  onClick: () => setClearCacheModalVisible(true),
+                },
                 {
                   name: "Force merge",
                   "data-test-subj": "ForceMergeAction",
@@ -98,6 +109,13 @@ export default function DataStreamsActions(props: DataStreamsActionsProps) {
         visible={flushDataStreamModalVisible}
         onClose={onFlushDataStreamModalClose}
         flushTarget="data stream"
+      />
+
+      <ClearCacheModal
+        selectedItems={selectedItems}
+        visible={clearCacheModalVisible}
+        onClose={onClearCacheModalClose}
+        type={SOURCE_PAGE_TYPE.DATA_STREAMS}
       />
     </>
   );

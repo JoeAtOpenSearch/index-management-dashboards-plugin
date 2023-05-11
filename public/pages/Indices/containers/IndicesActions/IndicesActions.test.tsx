@@ -16,6 +16,7 @@ import { ServicesContext } from "../../../../services";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { createMemoryHistory } from "history";
 import { ROUTES } from "../../../../utils/constants";
+import { buildMockApiCallerForFlush, selectedIndices } from "../../../../containers/FlushIndexModal/FlushIndexModalTestHelper";
 
 function renderWithRouter(
   props: Omit<IndicesActionsProps, "history"> & { history?: IndicesActionsProps["history"]; location?: RouteComponentProps["location"] }
@@ -63,6 +64,7 @@ describe("<IndicesActions /> spec", () => {
       expect(getByTestId("Apply policyButton")).toBeDisabled();
       expect(getByTestId("Split Action")).toBeDisabled();
       expect(getByTestId("Reindex Action")).toBeEnabled();
+      expect(getByTestId("Flush Action")).toBeEnabled();
     });
   });
 
@@ -572,5 +574,24 @@ describe("<IndicesActions /> spec", () => {
 
     userEvent.click(document.querySelector('[data-test-subj="moreAction"] button') as Element);
     expect(getByTestId("Split Action")).toBeDisabled();
+  });
+
+  it("renders flush component", async () => {
+    browserServicesMock.commonService.apiCaller = buildMockApiCallerForFlush();
+    const { getByTestId, getByText } = render(
+      <CoreServicesContext.Provider value={coreServicesMock}>
+        <ServicesContext.Provider value={browserServicesMock}>
+          <ModalProvider>
+            <IndicesActions selectedItems={selectedIndices} />
+          </ModalProvider>
+        </ServicesContext.Provider>
+      </CoreServicesContext.Provider>
+    );
+    userEvent.click(document.querySelector('[data-test-subj="moreAction"] button') as Element);
+    userEvent.click(getByTestId("Flush Action"));
+    await waitFor(() => {
+      expect(getByText("The following indices will be flushed:")).toBeInTheDocument();
+    });
+    expect(document.body.children).toMatchSnapshot();
   });
 });

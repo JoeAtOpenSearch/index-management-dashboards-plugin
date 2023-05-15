@@ -5,7 +5,18 @@
 
 import React, { ReactChild, useContext, useEffect, useRef, useState } from "react";
 import { unstable_batchedUpdates } from "react-dom";
-import { EuiButton, EuiCallOut, EuiCard, EuiEmptyPrompt, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTitle } from "@elastic/eui";
+import {
+  EuiButton,
+  EuiCallOut,
+  EuiCard,
+  EuiEmptyPrompt,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+  EuiTitle,
+} from "@elastic/eui";
 import { get } from "lodash";
 import { CoreStart } from "opensearch-dashboards/public";
 import useField from "../../../../lib/field";
@@ -180,16 +191,19 @@ const Notifications = (props: NotificationsProps) => {
       </EuiFlexGroup>
       <EuiSpacer />
       {noPermission ? (
-        <EuiCard title="">
+        <EuiPanel>
           <EuiEmptyPrompt
             iconType="alert"
             iconColor="danger"
             title={<h2>Error loading Notification settings</h2>}
             body={<p>You do not have permissions to view Notification settings. Contact your administrator to request permissions.</p>}
           />
-        </EuiCard>
+        </EuiPanel>
       ) : (
-        <EuiCard title="Defaults for index operations" textAlign="left">
+        <EuiPanel>
+          <EuiText>
+            <h2>Defaults for index operations</h2>
+          </EuiText>
           {submitClicked && allErrors.length ? (
             <EuiCallOut iconType="iInCircle" color="danger" title="Address the following error(s) in the form">
               <ul>
@@ -245,32 +259,32 @@ const Notifications = (props: NotificationsProps) => {
                 key={record.action_name}
               >
                 <>
-                  <div>{LABEL_FOR_CONDITION}</div>
-                  <EuiSpacer size="s" />
-                  <EuiFlexGroup alignItems="flexStart">
-                    <EuiFlexItem>
-                      <AllBuiltInComponents.CheckBox
-                        {...field.registerField({
-                          name: ["dataSource", `${record.index}`, FieldEnum.failure],
-                        })}
-                        data-test-subj={["dataSource", `${record.index}`, FieldEnum.failure].join(".")}
-                        label="Has failed"
-                      />
-                    </EuiFlexItem>
-                    <EuiFlexItem>
-                      <AllBuiltInComponents.CheckBox
-                        {...field.registerField({
-                          name: ["dataSource", `${record.index}`, FieldEnum.success],
-                        })}
-                        data-test-subj={["dataSource", `${record.index}`, FieldEnum.success].join(".")}
-                        label="Has completed"
-                      />
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
+                  <CustomFormRow label={LABEL_FOR_CONDITION}>
+                    <EuiFlexGroup alignItems="flexStart">
+                      <EuiFlexItem>
+                        <AllBuiltInComponents.CheckBox
+                          {...field.registerField({
+                            name: ["dataSource", `${record.index}`, FieldEnum.failure],
+                          })}
+                          data-test-subj={["dataSource", `${record.index}`, FieldEnum.failure].join(".")}
+                          label="Has failed"
+                        />
+                      </EuiFlexItem>
+                      <EuiFlexItem>
+                        <AllBuiltInComponents.CheckBox
+                          {...field.registerField({
+                            name: ["dataSource", `${record.index}`, FieldEnum.success],
+                          })}
+                          data-test-subj={["dataSource", `${record.index}`, FieldEnum.success].join(".")}
+                          label="Has completed"
+                        />
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </CustomFormRow>
                   {field.getValue(["dataSource", `${record.index}`, FieldEnum.failure]) ||
                   field.getValue(["dataSource", `${record.index}`, FieldEnum.success]) ? (
                     <>
-                      <EuiSpacer size="s" />
+                      <EuiSpacer />
                       <CustomFormRow
                         label={FieldMapLabel[FieldEnum.channels]}
                         isInvalid={!!field.getError(["dataSource", `${record.index}`, FieldEnum.channels])}
@@ -285,7 +299,7 @@ const Notifications = (props: NotificationsProps) => {
               </CustomFormRow>
             );
           })}
-        </EuiCard>
+        </EuiPanel>
       )}
       {diffJson(
         getDiffableMapFromPlainList(values.dataSource || []),

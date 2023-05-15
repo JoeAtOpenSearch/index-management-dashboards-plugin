@@ -55,46 +55,34 @@ exports[`<Notifications /> spec View without permission 1`] = `
     class="euiSpacer euiSpacer--l"
   />
   <div
-    class="euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow euiCard euiCard--centerAligned"
+    class="euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow"
   >
     <div
-      class="euiCard__content"
+      class="euiEmptyPrompt"
     >
-      <span
-        class="euiTitle euiTitle--small euiCard__title"
-        id="some_html_idTitle"
-      />
+      EuiIconMock
       <div
-        class="euiCard__children"
+        class="euiSpacer euiSpacer--m"
+      />
+      <h2
+        class="euiTitle euiTitle--medium"
+      >
+        Error loading Notification settings
+      </h2>
+      <span
+        class="euiTextColor euiTextColor--subdued"
       >
         <div
-          class="euiEmptyPrompt"
+          class="euiSpacer euiSpacer--m"
+        />
+        <div
+          class="euiText euiText--medium"
         >
-          EuiIconMock
-          <div
-            class="euiSpacer euiSpacer--m"
-          />
-          <h2
-            class="euiTitle euiTitle--medium"
-          >
-            Error loading Notification settings
-          </h2>
-          <span
-            class="euiTextColor euiTextColor--subdued"
-          >
-            <div
-              class="euiSpacer euiSpacer--m"
-            />
-            <div
-              class="euiText euiText--medium"
-            >
-              <p>
-                You do not have permissions to view Notification settings. Contact your administrator to request permissions.
-              </p>
-            </div>
-          </span>
+          <p>
+            You do not have permissions to view Notification settings. Contact your administrator to request permissions.
+          </p>
         </div>
-      </div>
+      </span>
     </div>
   </div>
 </div>
@@ -155,69 +143,75 @@ exports[`<Notifications /> spec renders 1`] = `
     class="euiSpacer euiSpacer--l"
   />
   <div
-    class="euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow euiCard euiCard--leftAligned"
+    class="euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow"
   >
     <div
-      class="euiCard__content"
+      class="euiText euiText--medium"
     >
-      <span
-        class="euiTitle euiTitle--small euiCard__title"
-        id="some_html_idTitle"
-      >
+      <h2>
         Defaults for index operations
-      </span>
+      </h2>
+    </div>
+    <div
+      class="euiSpacer euiSpacer--l"
+    />
+    <div
+      class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
+      role="group"
+    >
       <div
-        class="euiCard__children"
+        class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
       >
         <div
-          class="euiSpacer euiSpacer--l"
-        />
-        <div
-          class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
-          role="group"
+          class="euiFlexItem"
+          style="max-width: 700px;"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
           >
             <div
-              class="euiFlexItem"
-              style="max-width: 700px;"
+              class="ISM-notifications-first-letter-uppercase"
             >
-              <div
-                class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
-              >
-                <div
-                  class="ISM-notifications-first-letter-uppercase"
-                >
-                  reindex
-                </div>
-              </div>
-              <div
-                class="euiText euiText--small euiDescribedFormGroup__description"
-              >
-                <div
-                  class="euiTextColor euiTextColor--subdued"
-                >
-                  Notify when any reindex operations has failed or completed.
-                </div>
-              </div>
+              reindex
             </div>
+          </div>
+          <div
+            class="euiText euiText--small euiDescribedFormGroup__description"
+          >
             <div
-              class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+              class="euiTextColor euiTextColor--subdued"
+            >
+              Notify when any reindex operations has failed or completed.
+            </div>
+          </div>
+        </div>
+        <div
+          class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+        >
+          <div
+            class="euiFormRow"
+            id="some_html_id-row"
+          >
+            <div
+              class="euiFormRow__fieldWrapper"
             >
               <div
                 class="euiFormRow"
                 id="some_html_id-row"
               >
                 <div
+                  class="euiFormRow__labelWrapper"
+                >
+                  <label
+                    class="euiFormLabel euiFormRow__label"
+                    for="some_html_id"
+                  >
+                    Notify when operation
+                  </label>
+                </div>
+                <div
                   class="euiFormRow__fieldWrapper"
                 >
-                  <div>
-                    Notify when operation
-                  </div>
-                  <div
-                    class="euiSpacer euiSpacer--s"
-                  />
                   <div
                     class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive"
                   >
@@ -281,52 +275,65 @@ exports[`<Notifications /> spec renders 1`] = `
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div
+      class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
+      role="group"
+    >
+      <div
+        class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+      >
         <div
-          class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
-          role="group"
+          class="euiFlexItem"
+          style="max-width: 700px;"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
           >
             <div
-              class="euiFlexItem"
-              style="max-width: 700px;"
+              class="ISM-notifications-first-letter-uppercase"
             >
-              <div
-                class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
-              >
-                <div
-                  class="ISM-notifications-first-letter-uppercase"
-                >
-                  shrink, split, clone
-                </div>
-              </div>
-              <div
-                class="euiText euiText--small euiDescribedFormGroup__description"
-              >
-                <div
-                  class="euiTextColor euiTextColor--subdued"
-                >
-                  Notify when any shrink, split, or clone operations has failed or completed.
-                </div>
-              </div>
+              shrink, split, clone
             </div>
+          </div>
+          <div
+            class="euiText euiText--small euiDescribedFormGroup__description"
+          >
             <div
-              class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+              class="euiTextColor euiTextColor--subdued"
+            >
+              Notify when any shrink, split, or clone operations has failed or completed.
+            </div>
+          </div>
+        </div>
+        <div
+          class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+        >
+          <div
+            class="euiFormRow"
+            id="some_html_id-row"
+          >
+            <div
+              class="euiFormRow__fieldWrapper"
             >
               <div
                 class="euiFormRow"
                 id="some_html_id-row"
               >
                 <div
+                  class="euiFormRow__labelWrapper"
+                >
+                  <label
+                    class="euiFormLabel euiFormRow__label"
+                    for="some_html_id"
+                  >
+                    Notify when operation
+                  </label>
+                </div>
+                <div
                   class="euiFormRow__fieldWrapper"
                 >
-                  <div>
-                    Notify when operation
-                  </div>
-                  <div
-                    class="euiSpacer euiSpacer--s"
-                  />
                   <div
                     class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive"
                   >
@@ -390,52 +397,65 @@ exports[`<Notifications /> spec renders 1`] = `
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div
+      class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
+      role="group"
+    >
+      <div
+        class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+      >
         <div
-          class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
-          role="group"
+          class="euiFlexItem"
+          style="max-width: 700px;"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
           >
             <div
-              class="euiFlexItem"
-              style="max-width: 700px;"
+              class="ISM-notifications-first-letter-uppercase"
             >
-              <div
-                class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
-              >
-                <div
-                  class="ISM-notifications-first-letter-uppercase"
-                >
-                  force merge
-                </div>
-              </div>
-              <div
-                class="euiText euiText--small euiDescribedFormGroup__description"
-              >
-                <div
-                  class="euiTextColor euiTextColor--subdued"
-                >
-                  Notify when any force merge operations has failed or completed.
-                </div>
-              </div>
+              force merge
             </div>
+          </div>
+          <div
+            class="euiText euiText--small euiDescribedFormGroup__description"
+          >
             <div
-              class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+              class="euiTextColor euiTextColor--subdued"
+            >
+              Notify when any force merge operations has failed or completed.
+            </div>
+          </div>
+        </div>
+        <div
+          class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+        >
+          <div
+            class="euiFormRow"
+            id="some_html_id-row"
+          >
+            <div
+              class="euiFormRow__fieldWrapper"
             >
               <div
                 class="euiFormRow"
                 id="some_html_id-row"
               >
                 <div
+                  class="euiFormRow__labelWrapper"
+                >
+                  <label
+                    class="euiFormLabel euiFormRow__label"
+                    for="some_html_id"
+                  >
+                    Notify when operation
+                  </label>
+                </div>
+                <div
                   class="euiFormRow__fieldWrapper"
                 >
-                  <div>
-                    Notify when operation
-                  </div>
-                  <div
-                    class="euiSpacer euiSpacer--s"
-                  />
                   <div
                     class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive"
                   >
@@ -499,52 +519,65 @@ exports[`<Notifications /> spec renders 1`] = `
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div
+      class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
+      role="group"
+    >
+      <div
+        class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+      >
         <div
-          class="euiDescribedFormGroup euiDescribedFormGroup--fullWidth"
-          role="group"
+          class="euiFlexItem"
+          style="max-width: 700px;"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
           >
             <div
-              class="euiFlexItem"
-              style="max-width: 700px;"
+              class="ISM-notifications-first-letter-uppercase"
             >
-              <div
-                class="euiTitle euiTitle--xsmall euiDescribedFormGroup__title"
-              >
-                <div
-                  class="ISM-notifications-first-letter-uppercase"
-                >
-                  open
-                </div>
-              </div>
-              <div
-                class="euiText euiText--small euiDescribedFormGroup__description"
-              >
-                <div
-                  class="euiTextColor euiTextColor--subdued"
-                >
-                  Notify when any open operations has failed or completed.
-                </div>
-              </div>
+              open
             </div>
+          </div>
+          <div
+            class="euiText euiText--small euiDescribedFormGroup__description"
+          >
             <div
-              class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+              class="euiTextColor euiTextColor--subdued"
+            >
+              Notify when any open operations has failed or completed.
+            </div>
+          </div>
+        </div>
+        <div
+          class="euiFlexItem euiDescribedFormGroup__fields euiDescribedFormGroup__fieldPadding--xsmall"
+        >
+          <div
+            class="euiFormRow"
+            id="some_html_id-row"
+          >
+            <div
+              class="euiFormRow__fieldWrapper"
             >
               <div
                 class="euiFormRow"
                 id="some_html_id-row"
               >
                 <div
+                  class="euiFormRow__labelWrapper"
+                >
+                  <label
+                    class="euiFormLabel euiFormRow__label"
+                    for="some_html_id"
+                  >
+                    Notify when operation
+                  </label>
+                </div>
+                <div
                   class="euiFormRow__fieldWrapper"
                 >
-                  <div>
-                    Notify when operation
-                  </div>
-                  <div
-                    class="euiSpacer euiSpacer--s"
-                  />
                   <div
                     class="euiFlexGroup euiFlexGroup--gutterLarge euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive"
                   >

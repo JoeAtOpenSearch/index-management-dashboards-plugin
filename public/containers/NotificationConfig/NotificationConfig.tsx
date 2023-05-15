@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { EuiBadge, EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiLink, EuiSpacer, EuiTitle } from "@elastic/eui";
+import { EuiBadge, EuiButton, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTitle } from "@elastic/eui";
 import ChannelSelect, { useChannels } from "../ChannelSelect";
 import { AllBuiltInComponents } from "../../components/FormGenerator";
 import {
@@ -216,7 +216,9 @@ const NotificationConfig = (
                     />
                   </EuiFlexItem>
                   <EuiFlexItem>
-                    <EuiButton onClick={() => window.open("/app/notifications-dashboards#/channels")}>Manage channels</EuiButton>
+                    <EuiButton onClick={() => window.open("/app/notifications-dashboards#/channels")} iconType="popout">
+                      Manage channels
+                    </EuiButton>
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </CustomFormRow>
@@ -229,7 +231,11 @@ const NotificationConfig = (
   return withPanel ? (
     <>
       <EuiSpacer />
-      <ContentPanel {...panelProps}>{content}</ContentPanel>
+      <ContentPanel accordion noExtraPadding {...panelProps}>
+        <EuiSpacer size="s" />
+        {content}
+        <EuiSpacer size="s" />
+      </ContentPanel>
     </>
   ) : (
     <>

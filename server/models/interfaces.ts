@@ -336,6 +336,8 @@ export interface CatIndex {
   uuid: string;
   data_stream: string | null;
   extraStatus?: "recovery" | "reindex" | "open" | "close";
+  dataSourceName?: string;
+  dataSourceId?: string;
 }
 
 export interface CatSnapshotIndex {

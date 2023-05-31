@@ -52,7 +52,7 @@ export class IndexPatternManagementPlugin implements Plugin<IndexManagementPlugi
       core,
       client: legacyClient,
       getDataSourceId(context, request) {
-        return request?.headers?.[`_${PLUGIN_NAME}_data_source_id_`] as string;
+        return request?.query?.[`__data_source_id__`] as string;
       },
       onExtendClient(client) {
         const finalClient = (client as unknown) as OpenSearchDashboardsClient & { ism?: any };

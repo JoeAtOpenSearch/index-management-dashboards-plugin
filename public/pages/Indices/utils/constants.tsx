@@ -51,6 +51,13 @@ const getColumns = (props: IColumnOptions): EuiTableFieldDataColumnType<ManagedC
       },
     },
     {
+      field: "dataSourceName",
+      name: "Data source",
+      truncateText: false,
+      textOnly: true,
+      width: "250px",
+    },
+    {
       field: "health",
       name: "Health",
       sortable: true,

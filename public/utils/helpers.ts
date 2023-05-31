@@ -228,3 +228,18 @@ export async function filterBlockedItems(
   }
   return result;
 }
+
+export async function ParallelPromise<T>(promisesAction: (() => Promise<T>)[]): Promise<T[]> {
+  return Promise.all(promisesAction.map((item) => item()));
+}
+
+export async function SerialPromise<T>(promisesAction: (() => Promise<T>)[]): Promise<T[]> {
+  return new Promise(async (resolve) => {
+    const result = [];
+    for (let i = 0; i < promisesAction.length; i++) {
+      const item = await promisesAction[i]();
+      result.push(item);
+    }
+    resolve(result);
+  });
+}

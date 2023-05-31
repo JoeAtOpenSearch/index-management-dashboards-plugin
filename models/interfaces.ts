@@ -675,3 +675,8 @@ export interface IReindexItem extends ITaskItem {
 }
 
 export type IAliasAction = Record<string, { index: string; alias: string }>;
+
+export type IDataSource = {
+  id: string;
+  title: string;
+};

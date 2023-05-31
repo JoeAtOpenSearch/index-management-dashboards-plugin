@@ -12,6 +12,7 @@ import TransformService from "./TransformService";
 import NotificationService from "./NotificationService";
 import SnapshotManagementService from "./SnapshotManagementService";
 import CommonService from "./CommonService";
+import DataSourceService from "./DataSourceService";
 
 export {
   ServicesConsumer,
@@ -24,4 +25,5 @@ export {
   NotificationService,
   SnapshotManagementService,
   CommonService,
+  DataSourceService,
 };

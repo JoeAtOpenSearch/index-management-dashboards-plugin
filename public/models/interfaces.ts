@@ -15,6 +15,7 @@ import {
   NotificationService,
   SnapshotManagementService,
   CommonService,
+  DataSourceService,
 } from "../services";
 
 export interface BrowserServices {
@@ -26,6 +27,7 @@ export interface BrowserServices {
   notificationService: NotificationService;
   snapshotManagementService: SnapshotManagementService;
   commonService: CommonService;
+  dataSourceService: DataSourceService;
 }
 
 export interface SMPoliciesQueryParams {

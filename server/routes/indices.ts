@@ -21,7 +21,7 @@ export default function (services: NodeServices, router: IRouter) {
     indexService.search
   );
 
-  router.get(
+  router.post(
     {
       path: NODE_API._INDICES,
       validate: {
@@ -37,6 +37,7 @@ export default function (services: NodeServices, router: IRouter) {
           showDataStreams: schema.boolean(),
           expandWildcards: schema.maybe(schema.string()),
           exactSearch: schema.maybe(schema.string()),
+          __data_source_id__: schema.maybe(schema.string()),
         }),
       },
     },

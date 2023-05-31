@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Component } from "react";
-import _ from "lodash";
+import React, { Component, useContext } from "react";
+import _, { orderBy } from "lodash";
 import { RouteComponentProps } from "react-router-dom";
 import queryString from "query-string";
 import {
@@ -27,20 +27,25 @@ import IndexEmptyPrompt from "../../components/IndexEmptyPrompt";
 import { DEFAULT_PAGE_SIZE_OPTIONS, DEFAULT_QUERY_PARAMS, indicesColumns } from "../../utils/constants";
 import IndexService from "../../../../services/IndexService";
 import CommonService from "../../../../services/CommonService";
+import DataSourceService from "../../../../services/DataSourceService";
 import { DataStream, ManagedCatIndex } from "../../../../../server/models/interfaces";
 import { getURLQueryParams } from "../../utils/helpers";
 import { IndicesQueryParams } from "../../models/interfaces";
 import { BREADCRUMBS, ROUTES } from "../../../../utils/constants";
-import { getErrorMessage } from "../../../../utils/helpers";
+import { ParallelPromise, SerialPromise, getErrorMessage } from "../../../../utils/helpers";
 import { CoreServicesContext } from "../../../../components/core_services";
 import { SECURITY_EXCEPTION_PREFIX } from "../../../../../server/utils/constants";
 import IndicesActions from "../IndicesActions";
 import { destroyListener, EVENT_MAP, listenEvent } from "../../../../JobHandler";
+import { ServicesContext } from "../../../../services";
+import { BrowserServices } from "../../../../models/interfaces";
 import "./index.scss";
+import { ServerResponse } from "plugins/index-management-dashboards-plugin/server/models/types";
 
 interface IndicesProps extends RouteComponentProps {
   indexService: IndexService;
   commonService: CommonService;
+  dataSourceService: DataSourceService;
 }
 
 interface IndicesState {
@@ -58,7 +63,7 @@ interface IndicesState {
   isDataStreamColumnVisible: boolean;
 }
 
-export default class Indices extends Component<IndicesProps, IndicesState> {
+class Indices extends Component<IndicesProps, IndicesState> {
   static contextType = CoreServicesContext;
   constructor(props: IndicesProps) {
     super(props);
@@ -112,30 +117,72 @@ export default class Indices extends Component<IndicesProps, IndicesState> {
   getIndices = async (): Promise<void> => {
     this.setState({ loadingIndices: true });
     try {
-      const { indexService, history } = this.props;
+      const { indexService, history, dataSourceService } = this.props;
+      const dataSource = await dataSourceService.getDataSource();
       const queryObject = Indices.getQueryObjectFromState(this.state);
       const queryParamsString = queryString.stringify(queryObject);
       history.replace({ ...this.props.location, search: queryParamsString });
-
-      const getIndicesResponse = await indexService.getIndices({
+      const queryCommon = {
         ...queryObject,
+        from: 0,
+        size: (queryObject.from / queryObject.size + 1) * queryObject.size,
         terms: this.getTermClausesFromState(),
         indices: this.getFieldClausesFromState("indices"),
         dataStreams: this.getFieldClausesFromState("data_streams"),
+      };
+
+      const allRequests = [
+        () => indexService.getIndices(queryCommon),
+        ...dataSource.map((item) => () =>
+          indexService.getIndices({
+            ...queryCommon,
+            __data_source_id__: item.id,
+          })
+        ),
+      ];
+
+      const getIndicesFromAllDataSource = await SerialPromise(allRequests);
+      let flatternedIndices: ManagedCatIndex[] = [];
+      const errorMessage: React.ReactChild[] = [];
+      let totalIndices = 0;
+      getIndicesFromAllDataSource.forEach((item, index) => {
+        if (item.ok) {
+          flatternedIndices = [
+            ...flatternedIndices,
+            ...item.response.indices.map((item) => ({
+              ...item,
+              itemId: `${dataSource[index - 1]?.id}-${item.index}`,
+              dataSourceId: dataSource[index - 1]?.id,
+              dataSourceName: dataSource[index - 1]?.title,
+            })),
+          ];
+          totalIndices += item.response.totalIndices;
+        } else {
+          errorMessage.push(<div>{item.error}</div>);
+        }
       });
 
-      if (getIndicesResponse.ok) {
-        const { indices, totalIndices } = getIndicesResponse.response;
+      // const getIndicesResponse = await indexService.getIndices({
+      //   ...queryObject,
+      //   terms: this.getTermClausesFromState(),
+      //   indices: this.getFieldClausesFromState("indices"),
+      //   dataStreams: this.getFieldClausesFromState("data_streams"),
+      // });
+
+      if (flatternedIndices.length) {
         const payload = {
-          indices,
+          indices: orderBy(flatternedIndices, [queryObject.sortField], queryObject.sortDirection).slice(
+            queryObject.from,
+            queryObject.from + queryObject.size
+          ),
           totalIndices,
           selectedItems: this.state.selectedItems
-            .map((item) => indices.find((remoteItem) => remoteItem.index === item.index))
+            .map((item) => flatternedIndices.find((remoteItem) => remoteItem.index === item.index))
             .filter((item) => item),
         } as IndicesState;
         this.setState(payload);
       } else {
-        this.context.notifications.toasts.addDanger(getIndicesResponse.error);
+        this.context.notifications.toasts.addDanger(errorMessage);
       }
     } catch (err) {
       this.context.notifications.toasts.addDanger(getErrorMessage(err, "There was a problem loading the indices"));
@@ -251,7 +298,6 @@ export default class Indices extends Component<IndicesProps, IndicesState> {
                     onClose={this.getIndices}
                     onShrink={this.getIndices}
                     selectedItems={this.state.selectedItems}
-                    getIndices={this.getIndices}
                   />
                 ),
                 text: "",
@@ -289,7 +335,7 @@ export default class Indices extends Component<IndicesProps, IndicesState> {
           })}
           loading={this.state.loadingIndices}
           isSelectable={true}
-          itemId="index"
+          itemId="itemId"
           items={indices}
           noItemsMessage={<IndexEmptyPrompt filterIsApplied={filterIsApplied} loading={loadingIndices} resetFilters={this.resetFilters} />}
           onChange={this.onTableChange}
@@ -300,4 +346,16 @@ export default class Indices extends Component<IndicesProps, IndicesState> {
       </ContentPanel>
     );
   }
+}
+
+export default function IndicesWrapper(props: Omit<IndicesProps, "indexService" | "commonService">) {
+  const services = useContext(ServicesContext) as BrowserServices;
+  return (
+    <Indices
+      {...props}
+      indexService={services.indexService}
+      commonService={services.commonService}
+      dataSourceService={services.dataSourceService}
+    />
+  );
 }

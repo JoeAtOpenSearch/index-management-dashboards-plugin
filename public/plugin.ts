@@ -9,7 +9,7 @@ import {
   AppMountParameters,
   CoreSetup,
   CoreStart,
-  DEFAULT_APP_CATEGORIES,
+  // DEFAULT_APP_CATEGORIES,
   Plugin,
   PluginInitializerContext,
 } from "../../../src/core/public";
@@ -17,6 +17,10 @@ import { actionRepoSingleton } from "./pages/VisualCreatePolicy/utils/helpers";
 import { ROUTES } from "./utils/constants";
 import { JobHandlerRegister } from "./JobHandler";
 import { ManagementOverViewPluginSetup } from "../../../src/plugins/management_overview/public";
+
+const DEFAULT_APP_CATEGORIES = {
+  management: undefined,
+};
 
 interface IndexManagementSetupDeps {
   managementOverview?: ManagementOverViewPluginSetup;
